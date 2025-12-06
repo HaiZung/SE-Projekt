@@ -1,0 +1,216 @@
+[gd_scene load_steps=3 format=3 uid="uid://dc6t68g6ccu8h"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_red"]
+bg_color = Color(0.86, 0.08, 0.24, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="MainUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainLayout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.293
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -0.53601074
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TopBar" type="HBoxContainer" parent="MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MenuButton" type="Button" parent="MainLayout/TopBar"]
+custom_minimum_size = Vector2(50, 30)
+layout_mode = 2
+
+[node name="AddressBar" type="LineEdit" parent="MainLayout/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Roboterdetailansicht"
+editable = false
+
+[node name="WindowPanel" type="PanelContainer" parent="MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_window")
+
+[node name="WindowVBox" type="VBoxContainer" parent="MainLayout/WindowPanel"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="WindowHeader" type="MarginContainer" parent="MainLayout/WindowPanel/WindowVBox"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HeaderButtons" type="HBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader"]
+layout_mode = 2
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="RedBtn1" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+
+[node name="RedBtn2" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+
+[node name="RedBtn3" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+
+[node name="RedBtn4" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+
+[node name="Separator" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox"]
+layout_mode = 2
+
+[node name="ScrollArea" type="ScrollContainer" parent="MainLayout/WindowPanel/WindowVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentList" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Heading1_Expanded" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+layout_mode = 2
+
+[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Status
+"
+flat = true
+alignment = 0
+
+[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Txext"
+
+[node name="Label2" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Label3" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Separator" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+layout_mode = 2
+
+[node name="Heading1_Expanded2" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+layout_mode = 2
+
+[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Geplante Route"
+flat = true
+alignment = 0
+
+[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Txext"
+
+[node name="Label2" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Label3" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Separator2" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+layout_mode = 2
+
+[node name="Heading1_Expanded3" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+layout_mode = 2
+
+[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Paketliste"
+flat = true
+alignment = 0
+
+[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Txext"
+
+[node name="Label2" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Label3" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Separator3" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+layout_mode = 2
+
+[node name="Heading1_Expanded4" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+layout_mode = 2
+
+[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "3D Ansicht"
+flat = true
+alignment = 0
