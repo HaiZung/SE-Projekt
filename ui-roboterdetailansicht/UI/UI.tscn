@@ -1,4 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=4 format=3 uid="uid://dc6t68g6ccu8h"]
+
+[ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
 bg_color = Color(1, 1, 1, 1)
@@ -43,12 +45,8 @@ theme_override_constants/separation = 10
 [node name="MenuButton" type="Button" parent="MainLayout/TopBar"]
 custom_minimum_size = Vector2(50, 30)
 layout_mode = 2
-
-[node name="AddressBar" type="LineEdit" parent="MainLayout/TopBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Roboterdetailansicht"
-editable = false
+tooltip_text = "Roboterdetaillansicht
+"
 
 [node name="WindowPanel" type="PanelContainer" parent="MainLayout"]
 layout_mode = 2
@@ -113,6 +111,7 @@ theme_override_constants/separation = 10
 
 [node name="Heading1_Expanded" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
+script = ExtResource("1_6dd3c")
 
 [node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
 layout_mode = 2
