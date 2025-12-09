@@ -4,22 +4,28 @@ const TILE_URL := "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 const TILE_SIZE := 256
 var zoom: int = 14
 
+
 func _ready() -> void:
 	# Zentrum: Karlsruhe
 	var center_lat := 49.0069
 	var center_lon := 8.4037
 
 	var center_tile: Vector2i = latlon_to_tile(center_lat, center_lon, zoom)
+	var center_world := latlon_to_world(center_lat, center_lon, zoom)
 
 	# Kamera auf Mittelposition setzen
-	$Camera2D.position = Vector2(center_tile.x * TILE_SIZE, center_tile.y * TILE_SIZE)
+	$Camera2D.position = center_world
 
-	# Tiles laden (5x5 um die Mitte)
+	# Tiles laden (größerer Ausschnitt)
 	for dx in range(-4, 5):
 		for dy in range(-4, 5):
 			var x := center_tile.x + dx
 			var y := center_tile.y + dy
 			load_tile(x, y)
+
+	# 👉 KVV GeoJSON laden & Linien zeichnen
+	load_geojson_lines("res://KVVLinesGeoJSON_v2.json")
+
 
 
 # -------------------------------
@@ -63,6 +69,7 @@ func load_tile(x: int, y: int) -> void:
 	http.request(url)
 
 
+
 # -------------------------------
 # Kamera-Steuerung (Drag + Zoom)
 # -------------------------------
@@ -78,3 +85,82 @@ func _unhandled_input(event: InputEvent) -> void:
 			$Camera2D.zoom *= 0.9
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 			$Camera2D.zoom *= 1.1
+
+
+
+# -------------------------------
+# lat/lon -> Weltkoordinaten
+# -------------------------------
+
+func latlon_to_world(lat: float, lon: float, z: int) -> Vector2:
+	var lat_rad := deg_to_rad(lat)
+	var n := pow(2.0, z)
+	var x := (lon + 180.0) / 360.0 * n * TILE_SIZE
+	var y := (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / PI) / 2.0 * n * TILE_SIZE
+	return Vector2(x, y)
+
+
+
+# -------------------------------
+# KVV GeoJSON Linien laden
+# -------------------------------
+
+func load_geojson_lines(path: String) -> void:
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_error("Konnte GeoJSON nicht öffnen: %s" % path)
+		return
+
+	var text := file.get_as_text()
+	var data = JSON.parse_string(text)
+	if data == null:
+		push_error("GeoJSON konnte nicht geparst werden")
+		return
+
+	if not (data is Dictionary) or not data.has("features"):
+		push_error("GeoJSON hat kein 'features'-Feld")
+		return
+
+	var features: Array = data["features"]
+
+	for feature in features:
+		if not (feature is Dictionary):
+			continue
+		if not feature.has("geometry"):
+			continue
+
+		var geom = feature["geometry"]
+		if not (geom is Dictionary):
+			continue
+
+		if not geom.has("type") or geom["type"] != "LineString":
+			continue
+
+		if not geom.has("coordinates"):
+			continue
+		var coords = geom["coordinates"]  # Array aus [lon, lat]
+
+		var line := Line2D.new()
+		line.width = 3
+
+		# Farbe aus properties.colorCode, falls vorhanden (z.B. "#E3000F")
+		if feature.has("properties"):
+			var props = feature["properties"]
+			if props.has("colorCode"):
+				var col_str: String = props["colorCode"]
+				line.default_color = Color.from_string(col_str, Color(1, 0, 0))
+			else:
+				line.default_color = Color(0, 0.6, 1)
+		else:
+			line.default_color = Color(0, 0.6, 1)
+
+		for coord in coords:
+			if coord.size() < 2:
+				continue
+			var lon: float = coord[0]  # GeoJSON: [lon, lat]
+			var lat: float = coord[1]
+			var world_pos := latlon_to_world(lat, lon, zoom)
+			line.add_point(world_pos)
+
+		if line.points.size() > 1:
+			$OverlayContainer.add_child(line)
