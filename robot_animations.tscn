@@ -1,0 +1,99 @@
+[gd_scene load_steps=10 format=3 uid="uid://dibx3sutk8sb6"]
+
+[ext_resource type="PackedScene" uid="uid://davbswja8ld6c" path="res://robot_animations.glb" id="1_e7yvf"]
+[ext_resource type="Shader" uid="uid://b6fac5pcpttl5" path="res://lamps.gdshader" id="2_e2txg"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_8hki4"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_kj670"]
+sky_material = SubResource("ProceduralSkyMaterial_8hki4")
+
+[sub_resource type="Environment" id="Environment_wla17"]
+background_mode = 2
+sky = SubResource("Sky_kj670")
+tonemap_mode = 2
+glow_enabled = true
+glow_intensity = 1.0
+glow_hdr_threshold = 2.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8hki4"]
+render_priority = 0
+shader = ExtResource("2_e2txg")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_strength = 5.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kj670"]
+render_priority = 0
+shader = ExtResource("2_e2txg")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_strength = 5.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rj36b"]
+render_priority = 0
+shader = ExtResource("2_e2txg")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_strength = 5.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_e2txg"]
+render_priority = 0
+shader = ExtResource("2_e2txg")
+shader_parameter/emission_color = Color(1, 1, 1, 1)
+shader_parameter/emission_strength = 5.0
+
+[node name="robot_animations" instance=ExtResource("1_e7yvf")]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." index="0"]
+environment = SubResource("Environment_wla17")
+
+[node name="lampBackLeft" parent="Movement_master/body" index="6"]
+surface_material_override/0 = SubResource("ShaderMaterial_8hki4")
+
+[node name="lampBackRight" parent="Movement_master/body" index="7"]
+surface_material_override/0 = SubResource("ShaderMaterial_kj670")
+
+[node name="lampFrontLeft" parent="Movement_master/body" index="8"]
+surface_material_override/0 = SubResource("ShaderMaterial_rj36b")
+
+[node name="lampFrontRight" parent="Movement_master/body" index="9"]
+surface_material_override/0 = SubResource("ShaderMaterial_e2txg")
+
+[node name="empty_door_left_bottom" parent="Movement_master/body/top" index="8"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_door_left_middle_bottom" parent="Movement_master/body/top" index="9"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_door_left_middle_top" parent="Movement_master/body/top" index="10"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_door_left_top" parent="Movement_master/body/top" index="11"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_door_right_bottom" parent="Movement_master/body/top" index="12"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_door_right_middle_bottom" parent="Movement_master/body/top" index="13"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_door_right_middle_top" parent="Movement_master/body/top" index="14"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_door_right_top" parent="Movement_master/body/top" index="15"]
+transform = Transform3D(2.22222, 0, 0, 0, -9.71364e-08, 2.22222, 0, -2.22222, -9.71364e-08, 0.213251, 0.192422, 1.47632)
+
+[node name="empty_wheels" parent="Movement_master" index="2"]
+transform = Transform3D(0.00325286, -0.00777776, 0.000106056, 0.00542014, 0.00234887, 0.00601587, -0.00557914, -0.0022528, 0.00590626, 2.8903e-05, 0.00257021, 0.00269812)
+
+[node name="wheel_BL" parent="Movement_master" index="5"]
+transform = Transform3D(-1, 0, 0, 0, -0.363706, -0.931514, 0, 0.931514, -0.363706, 0.20701, 0.00837544, -0.359391)
+
+[node name="wheel_BR" parent="Movement_master" index="6"]
+transform = Transform3D(-1, -7.93731e-08, 5.4918e-08, 2.22885e-08, 0.363706, 0.931514, -9.39112e-08, 0.931514, -0.363706, -0.206929, 0.00837544, -0.359391)
+
+[node name="wheel_FL" parent="Movement_master" index="7"]
+transform = Transform3D(1, 0, 0, 0, 0.363706, 0.931514, 0, -0.931514, 0.363706, 0.20701, 0.00837544, 0.370622)
+
+[node name="wheel_FR" parent="Movement_master" index="8"]
+transform = Transform3D(1, 0, 0, 0, 0.363706, 0.931514, 0, -0.931514, 0.363706, -0.206929, 0.00837544, 0.370622)
