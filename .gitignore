@@ -1,0 +1,20 @@
+# Godot generated files
+.import/
+.export/
+*.import
+
+# Godot cache (Godot 4 uses this, but it's safe to include)
+.godot/editor/
+.godot/imported/
+
+# Blender junk
+*.blend1
+*.blend2
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Builds
+builds/
+export/
