@@ -10,11 +10,12 @@ func _ready() -> void:
 	var center_lat := 49.0069
 	var center_lon := 8.4037
 
-	var center_tile: Vector2i = latlon_to_tile(center_lat, center_lon, zoom)
+	# Weltkoordinaten des Zentrums (selbe Funktion wie für Linien)
 	var center_world := latlon_to_world(center_lat, center_lon, zoom)
-
-	# Kamera auf Mittelposition setzen
 	$Camera2D.position = center_world
+
+	# Tile-Index des Zentrums
+	var center_tile: Vector2i = latlon_to_tile(center_lat, center_lon, zoom)
 
 	# Tiles laden (größerer Ausschnitt)
 	for dx in range(-4, 5):
@@ -24,7 +25,7 @@ func _ready() -> void:
 			load_tile(x, y)
 
 	# 👉 KVV GeoJSON laden & Linien zeichnen
-	load_geojson_lines("res://KVVLinesGeoJSON_v2.json")
+	load_geojson_lines("res://data/KVVLinesGeoJSON_v2.json")
 
 
 
@@ -32,12 +33,10 @@ func _ready() -> void:
 # TILE-Berechnungen & Laden
 # -------------------------------
 
+# Nur noch int-Tileindex, abgeleitet aus derselben Formel
 func latlon_to_tile(lat: float, lon: float, z: int) -> Vector2i:
-	var lat_rad := deg_to_rad(lat)
-	var n := pow(2.0, z)
-	var xtile := int((lon + 180.0) / 360.0 * n)
-	var ytile := int((1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / PI) / 2.0 * n)
-	return Vector2i(xtile, ytile)
+	var world := latlon_to_world(lat, lon, z) / TILE_SIZE
+	return Vector2i(int(world.x), int(world.y))
 
 
 func load_tile(x: int, y: int) -> void:
@@ -92,19 +91,19 @@ func _unhandled_input(event: InputEvent) -> void:
 # lat/lon -> Weltkoordinaten
 # -------------------------------
 
+# WGS84 -> "Slippy Map"-Pixelkoordinaten in deiner Welt
 func latlon_to_world(lat: float, lon: float, z: int) -> Vector2:
 	var lat_rad := deg_to_rad(lat)
 	var n := pow(2.0, z)
-	var x := (lon + 180.0) / 360.0 * n * TILE_SIZE
-	var y := (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / PI) / 2.0 * n * TILE_SIZE
-	return Vector2(x, y)
+	var x_tile := (lon + 180.0) / 360.0 * n
+	var y_tile := (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / PI) / 2.0 * n
+	return Vector2(x_tile * TILE_SIZE, y_tile * TILE_SIZE)
 
 
 
 # -------------------------------
 # KVV GeoJSON Linien laden
 # -------------------------------
-
 func load_geojson_lines(path: String) -> void:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if file == null:
@@ -124,26 +123,24 @@ func load_geojson_lines(path: String) -> void:
 	var features: Array = data["features"]
 
 	for feature in features:
-		if not (feature is Dictionary):
-			continue
-		if not feature.has("geometry"):
+		if not (feature is Dictionary) or not feature.has("geometry"):
 			continue
 
 		var geom = feature["geometry"]
 		if not (geom is Dictionary):
 			continue
-
 		if not geom.has("type") or geom["type"] != "LineString":
 			continue
-
 		if not geom.has("coordinates"):
 			continue
+
 		var coords = geom["coordinates"]  # Array aus [lon, lat]
 
 		var line := Line2D.new()
-		line.width = 3
+		line.width = 2.0
+		line.antialiased = true
 
-		# Farbe aus properties.colorCode, falls vorhanden (z.B. "#E3000F")
+		# Farbe aus properties.colorCode
 		if feature.has("properties"):
 			var props = feature["properties"]
 			if props.has("colorCode"):
@@ -164,3 +161,4 @@ func load_geojson_lines(path: String) -> void:
 
 		if line.points.size() > 1:
 			$OverlayContainer.add_child(line)
+
