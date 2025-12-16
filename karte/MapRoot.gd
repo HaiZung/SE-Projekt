@@ -28,9 +28,12 @@ func _ready() -> void:
 			load_tile(x, y)		
 
 	# 👉 KVV GeoJSON laden & Linien zeichnen
-	print("Exists? ", FileAccess.file_exists("res://data/KVVLinesGeoJSON_v2.json"))
+	print("Exists? ", FileAccess.file_exists("res://KVVLinesGeoJSON_v2.json"))
+	print("Exists? ", FileAccess.file_exists("res://KVV_Haltestelleb_v2.json"))
 
 	load_geojson_lines("res://KVVLinesGeoJSON_v2.json")
+	load_stops_from_kvv_json("res://KVV_Haltestellen_v2.json")
+
 
 
 
@@ -315,3 +318,102 @@ func _add_linestring_points(line: Line2D, coords) -> void:
 
 		var world_pos := latlon_to_world(lat, lon, zoom)
 		line.add_point(world_pos)
+
+
+
+# -------------------------------
+# Haltestellen Marker (kleiner Kreis)
+# -------------------------------
+class StopDot extends Node2D:
+	var radius: float = 4.0
+	var col: Color = Color(1, 1, 1, 1)
+
+	func _ready() -> void:
+		z_index = 2000
+		z_as_relative = false
+
+	func _draw() -> void:
+		draw_circle(Vector2.ZERO, radius, col)
+
+	func set_style(r: float, c: Color) -> void:
+		radius = r
+		col = c
+		queue_redraw()
+
+
+# -------------------------------
+# KVV Haltestellen (GeoJSON Points) laden
+# -------------------------------
+func load_stops_from_kvv_json(path: String) -> void:
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_error("Konnte Haltestellen-Datei nicht öffnen: %s" % path)
+		return
+
+	var text: String = file.get_as_text()
+
+	var json := JSON.new()
+	var err: int = json.parse(text)
+	if err != OK:
+		push_error("Stops JSON Parse-Error: %s (line %d, col %d)"
+			% [json.get_error_message(), json.get_error_line(), json.get_error_column()])
+		return
+
+	if not (json.data is Array):
+		push_error("Stops: Root ist kein Array")
+		return
+
+	var stops: Array = json.data
+
+	var added: int = 0
+	for s_v: Variant in stops:
+		if not (s_v is Dictionary):
+			continue
+		var s: Dictionary = s_v
+
+		var pos_v: Variant = s.get("coordPositionWGS84", null)
+		if not (pos_v is Dictionary):
+			continue
+		var pos: Dictionary = pos_v
+
+		if not pos.has("lat") or not pos.has("long"):
+			continue
+
+		var lat: float = float(str(pos["lat"]))
+		var lon: float = float(str(pos["long"]))
+
+		var world_pos: Vector2 = latlon_to_world(lat, lon, zoom)
+
+		var dot := StopDot.new()
+		dot.position = world_pos
+		dot.set_style(4.5, Color(1, 0, 0, 0.95)) # gut sichtbar
+		dot.z_index = 2000
+		dot.z_as_relative = false
+
+		$OverlayContainer.add_child(dot)
+		added += 1
+
+	print("Stops added:", added)
+
+
+
+
+func _add_stop_from_coord(coord_v: Variant) -> void:
+	if not (coord_v is Array):
+		return
+	var coord: Array = coord_v
+	if coord.size() < 2:
+		return
+
+	# GeoJSON: [lon, lat]
+	var lon: float = float(coord[0])
+	var lat: float = float(coord[1])
+
+	var pos: Vector2 = latlon_to_world(lat, lon, zoom)
+
+	var dot := StopDot.new()
+	dot.set_style(8, Color(1, 1, 1, 0.9)) # Radius + Farbe
+	dot.position = pos
+
+	# Damit es über den Tiles & Linien liegt:
+	$OverlayContainer.add_child(dot)
