@@ -1,9 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=19 format=3 uid="uid://dc6t68g6ccu8h"]
 
 [ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 [ext_resource type="Script" uid="uid://b3axa7bpmkxfe" path="res://UI/ui.gd" id="1_e707p"]
 [ext_resource type="Script" uid="uid://wj6rcqu0hhni" path="res://UI/heading_1_expanded_2.gd" id="2_dhe1o"]
 [ext_resource type="Script" uid="uid://kc0viaurn4if" path="res://UI/heading_1_expanded_3.gd" id="3_q0uhn"]
+[ext_resource type="Script" uid="uid://brhvj78rfw06i" path="res://UI/heading_1_expanded_4.gd" id="5_f1fl4"]
+[ext_resource type="Script" uid="uid://osil7ioblbjs" path="res://UI/testanimation.gd" id="6_jqf55"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
 bg_color = Color(1, 1, 1, 1)
@@ -27,6 +29,52 @@ corner_radius_bottom_left = 4
 [sub_resource type="ButtonGroup" id="ButtonGroup_f1fl4"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_jqf55"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_byuxr"]
+
+[sub_resource type="Animation" id="Animation_d050y"]
+resource_name = "idle"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.033333335, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 1.2081903)]
+}
+
+[sub_resource type="Animation" id="Animation_qgmx8"]
+resource_name = "drive"
+
+[sub_resource type="Animation" id="Animation_vx7wu"]
+resource_name = "wait"
+
+[sub_resource type="Animation" id="Animation_r2vy3"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_qhxh2"]
+_data = {
+&"RESET": SubResource("Animation_r2vy3"),
+&"drive": SubResource("Animation_qgmx8"),
+&"idle": SubResource("Animation_d050y"),
+&"wait": SubResource("Animation_vx7wu")
+}
 
 [node name="MainUI" type="Control"]
 layout_mode = 3
@@ -245,6 +293,7 @@ layout_mode = 2
 
 [node name="Heading1_Expanded4" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
+script = ExtResource("5_f1fl4")
 
 [node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
 layout_mode = 2
@@ -256,5 +305,28 @@ theme_override_font_sizes/font_size = 20
 text = "3D Ansicht"
 flat = true
 alignment = 0
+
+[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
+layout_mode = 2
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content"]
+layout_mode = 2
+
+[node name="SubViewport" type="SubViewport" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer"]
+
+[node name="Node3D" type="Node3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport"]
+script = ExtResource("6_jqf55")
+
+[node name="Camera3D" type="Camera3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+mesh = SubResource("CapsuleMesh_byuxr")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+libraries = {
+&"": SubResource("AnimationLibrary_qhxh2")
+}
 
 [connection signal="pressed" from="MainLayout/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]
