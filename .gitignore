@@ -1,20 +1,19 @@
-# Godot generated files
+# Godot 4+ specific ignores
+.godot/
+.nomedia
+
+# Godot-specific ignores
 .import/
-.export/
-*.import
+export.cfg
+export_credentials.cfg
+*.tmp
 
-# Godot cache (Godot 4 uses this, but it's safe to include)
-.godot/editor/
-.godot/imported/
+# Imported translations (automatically generated from CSV files)
+*.translation
 
-# Blender junk
-*.blend1
-*.blend2
+# Mono-specific ignores
+.mono/
+data_*/
+mono_crash.*.json
 
-# OS junk
-.DS_Store
-Thumbs.db
-
-# Builds
-builds/
-export/
+.vscode
