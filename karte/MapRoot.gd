@@ -28,11 +28,11 @@ func _ready() -> void:
 			load_tile(x, y)		
 
 	# 👉 KVV GeoJSON laden & Linien zeichnen
-	print("Exists? ", FileAccess.file_exists("res://KVVLinesGeoJSON_v2.json"))
-	print("Exists? ", FileAccess.file_exists("res://KVV_Haltestelleb_v2.json"))
+	print("Exists? ", FileAccess.file_exists("res://karte/KVVLinesGeoJSON_v2.json"))
+	print("Exists? ", FileAccess.file_exists("res://karte/KVV_Haltestelleb_v2.json"))
 
-	load_geojson_lines("res://KVVLinesGeoJSON_v2.json")
-	load_stops_from_kvv_json("res://KVV_Haltestellen_v2.json")
+	load_geojson_lines("res://karte/KVVLinesGeoJSON_v2.json")
+	load_stops_from_kvv_json("res://karte/KVV_Haltestellen_v2.json")
 
 
 

@@ -10,7 +10,11 @@ config_version=5
 
 [application]
 
-config/name="Karte"
+config/name="UIRoboterdetailansicht"
 run/main_scene="uid://cuyci8m3gb3v4"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
+
+[dotnet]
+
+project/assembly_name="UIRoboterdetailansicht"
