@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=17 format=3 uid="uid://dc6t68g6ccu8h"]
 
 [ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 [ext_resource type="Script" uid="uid://b3axa7bpmkxfe" path="res://UI/ui.gd" id="1_e707p"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://kc0viaurn4if" path="res://UI/heading_1_expanded_3.gd" id="3_q0uhn"]
 [ext_resource type="Script" uid="uid://brhvj78rfw06i" path="res://UI/heading_1_expanded_4.gd" id="5_f1fl4"]
 [ext_resource type="Script" uid="uid://osil7ioblbjs" path="res://UI/testanimation.gd" id="6_jqf55"]
+[ext_resource type="PackedScene" uid="uid://cuyci8m3gb3v4" path="res://karte/map.tscn" id="7_byuxr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
 bg_color = Color(1, 1, 1, 1)
@@ -29,15 +30,25 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[sub_resource type="ButtonGroup" id="ButtonGroup_q0uhn"]
-
-[sub_resource type="ButtonGroup" id="ButtonGroup_e707p"]
-
-[sub_resource type="ButtonGroup" id="ButtonGroup_f1fl4"]
-
-[sub_resource type="ButtonGroup" id="ButtonGroup_jqf55"]
-
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_byuxr"]
+
+[sub_resource type="Animation" id="Animation_r2vy3"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MeshInstance3D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, 0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_qgmx8"]
+resource_name = "drive"
 
 [sub_resource type="Animation" id="Animation_d050y"]
 resource_name = "idle"
@@ -54,26 +65,8 @@ tracks/0/keys = {
 "values": [Vector3(0, 0, 0), Vector3(0, 0, 1.2081903)]
 }
 
-[sub_resource type="Animation" id="Animation_qgmx8"]
-resource_name = "drive"
-
 [sub_resource type="Animation" id="Animation_vx7wu"]
 resource_name = "wait"
-
-[sub_resource type="Animation" id="Animation_r2vy3"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("MeshInstance3D:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector3(0, 0, 0)]
-}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_qhxh2"]
 _data = {
@@ -92,8 +85,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_e707p")
 
-[node name="MainLayout" type="VBoxContainer" parent="."]
-layout_mode = 1
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="MainLayout" type="VBoxContainer" parent="UILayer"]
 anchors_preset = -1
 anchor_right = 0.293
 anchor_bottom = 1.0
@@ -105,38 +99,38 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 20
 
-[node name="TopBar" type="HBoxContainer" parent="MainLayout"]
+[node name="TopBar" type="HBoxContainer" parent="UILayer/MainLayout"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="MenuButton" type="Button" parent="MainLayout/TopBar"]
+[node name="MenuButton" type="Button" parent="UILayer/MainLayout/TopBar"]
 custom_minimum_size = Vector2(50, 30)
 layout_mode = 2
 tooltip_text = "Roboterdetaillansicht
 "
 
-[node name="WindowPanel" type="PanelContainer" parent="MainLayout"]
+[node name="WindowPanel" type="PanelContainer" parent="UILayer/MainLayout"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_window")
 
-[node name="WindowVBox" type="VBoxContainer" parent="MainLayout/WindowPanel"]
+[node name="WindowVBox" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel"]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="WindowHeader" type="MarginContainer" parent="MainLayout/WindowPanel/WindowVBox"]
+[node name="WindowHeader" type="MarginContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox"]
 layout_mode = 2
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="HeaderButtons" type="HBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader"]
+[node name="HeaderButtons" type="HBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader"]
 layout_mode = 2
 theme_override_constants/separation = 15
 alignment = 1
 
-[node name="RedBtn1" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+[node name="RedBtn1" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
@@ -146,7 +140,7 @@ toggle_mode = true
 text = "R1
 "
 
-[node name="RedBtn2" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+[node name="RedBtn2" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
@@ -155,7 +149,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R2"
 
-[node name="RedBtn3" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+[node name="RedBtn3" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
@@ -164,7 +158,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R3"
 
-[node name="RedBtn4" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
+[node name="RedBtn4" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
@@ -173,23 +167,23 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R4"
 
-[node name="Separator" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox"]
+[node name="Separator" type="HSeparator" parent="UILayer/MainLayout/WindowPanel/WindowVBox"]
 layout_mode = 2
 
-[node name="ScrollArea" type="ScrollContainer" parent="MainLayout/WindowPanel/WindowVBox"]
+[node name="ScrollArea" type="ScrollContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ContentList" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea"]
+[node name="ContentList" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
 
-[node name="Heading1_Expanded" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+[node name="Heading1_Expanded" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
 script = ExtResource("1_6dd3c")
 
-[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
+[node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
@@ -201,32 +195,32 @@ text = "Status
 flat = true
 alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
+[node name="Content" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "       Text"
-
-[node name="Label2" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
+[node name="Label" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "       Text"
 
-[node name="Label3" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
+[node name="Label2" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "       Text"
 
-[node name="Separator" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+[node name="Label3" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Separator" type="HSeparator" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
 
-[node name="Heading1_Expanded2" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+[node name="Heading1_Expanded2" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
 script = ExtResource("2_dhe1o")
 
-[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
+[node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
@@ -237,32 +231,32 @@ text = "Geplante Route"
 flat = true
 alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
+[node name="Content" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "       Text"
-
-[node name="Label2" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
+[node name="Label" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "       Text"
 
-[node name="Label3" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
+[node name="Label2" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "       Text"
 
-[node name="Separator2" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+[node name="Label3" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Separator2" type="HSeparator" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
 
-[node name="Heading1_Expanded3" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+[node name="Heading1_Expanded3" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
 script = ExtResource("3_q0uhn")
 
-[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
+[node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
@@ -273,32 +267,32 @@ text = "Paketliste"
 flat = true
 alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
+[node name="Content" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "       Text"
-
-[node name="Label2" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
+[node name="Label" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "       Text"
 
-[node name="Label3" type="Label" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
+[node name="Label2" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "       Text"
 
-[node name="Separator3" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+[node name="Label3" type="Label" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "       Text"
+
+[node name="Separator3" type="HSeparator" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
 
-[node name="Heading1_Expanded4" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
+[node name="Heading1_Expanded4" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList"]
 layout_mode = 2
 script = ExtResource("5_f1fl4")
 
-[node name="ToggleBtn" type="Button" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
+[node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
@@ -309,27 +303,32 @@ text = "3D Ansicht"
 flat = true
 alignment = 0
 
-[node name="Content" type="VBoxContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
+[node name="Content" type="VBoxContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
 layout_mode = 2
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content"]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content"]
 layout_mode = 2
 
-[node name="SubViewport" type="SubViewport" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer"]
+[node name="SubViewport" type="SubViewport" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer"]
+handle_input_locally = false
+render_target_update_mode = 4
 
-[node name="Node3D" type="Node3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport"]
+[node name="Node3D" type="Node3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport"]
 script = ExtResource("6_jqf55")
 
-[node name="Camera3D" type="Camera3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+[node name="Camera3D" type="Camera3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
 mesh = SubResource("CapsuleMesh_byuxr")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
 libraries = {
 &"": SubResource("AnimationLibrary_qhxh2")
 }
 
-[connection signal="pressed" from="MainLayout/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]
+[node name="MapRoot" parent="." instance=ExtResource("7_byuxr")]
+position = Vector2(579, 323)
+
+[connection signal="pressed" from="UILayer/MainLayout/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]

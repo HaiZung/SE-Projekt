@@ -2,20 +2,20 @@ extends Control
 
 # --- Buttons ---
 @onready var header_buttons := [
-	$MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn1,
-	$MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn2,
-	$MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn3,
-	$MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn4
+	$UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn1,
+	$UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn2,
+	$UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn3,
+	$UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons/RedBtn4
 ]
 
 # --- Sections ---
-@onready var sec_status   := $MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded
-@onready var sec_route    := $MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2
-@onready var sec_packages := $MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3
-@onready var robot_animation := $MainLayout/MainLayout/WindowPanel/ScrollArea/ContentList/Heading1_Expanded4/VBoxContainer/SubViewportContainer/SubViewport/Node3D
+@onready var sec_status   := $UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded
+@onready var sec_route    := $UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2
+@onready var sec_packages := $UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3
+@onready var robot_animation := $UILayer/MainLayout/MainLayout/WindowPanel/ScrollArea/ContentList/Heading1_Expanded4/VBoxContainer/SubViewportContainer/SubViewport/Node3D
 # 3D lassen wir erstmal aus, kommt danach
 
-@onready var window_panel := $MainLayout/WindowPanel
+@onready var window_panel := $UILayer/MainLayout/WindowPanel
 
 var selected_robot_id := 0
 var panel_open := true
@@ -66,7 +66,7 @@ func _on_robot_selected(id: int) -> void:
 			b.button_pressed=false
 		else: 
 			b.button_pressed=true
-			
+
 	var r = robots[id]
 
 	# Status
