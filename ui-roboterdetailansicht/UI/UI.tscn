@@ -20,6 +20,13 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_green"]
+bg_color = Color(0.2, 0.8, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
 [sub_resource type="ButtonGroup" id="ButtonGroup_q0uhn"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_e707p"]
@@ -85,10 +92,9 @@ alignment = 1
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_q0uhn")
 text = "R1
 "
 
@@ -96,30 +102,27 @@ text = "R1
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_e707p")
 text = "R2"
 
 [node name="RedBtn3" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_f1fl4")
 text = "R3"
 
 [node name="RedBtn4" type="Button" parent="MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
-button_group = SubResource("ButtonGroup_jqf55")
 text = "R4"
 
 [node name="Separator" type="HSeparator" parent="MainLayout/WindowPanel/WindowVBox"]
