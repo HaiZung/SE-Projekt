@@ -12,6 +12,7 @@ extends Control
 @onready var sec_status   := $MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded
 @onready var sec_route    := $MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2
 @onready var sec_packages := $MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3
+@onready var robot_animation := $MainLayout/MainLayout/WindowPanel/ScrollArea/ContentList/Heading1_Expanded4/VBoxContainer/SubViewportContainer/SubViewport/Node3D
 # 3D lassen wir erstmal aus, kommt danach
 
 @onready var window_panel := $MainLayout/WindowPanel
