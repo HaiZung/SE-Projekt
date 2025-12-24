@@ -60,6 +60,13 @@ func _ready():
 
 func _on_robot_selected(id: int) -> void:
 	selected_robot_id = id
+	#buttons grün if pressed
+	for b in header_buttons:
+		if b!=header_buttons[id]:
+			b.button_pressed=false
+		else: 
+			b.button_pressed=true
+			
 	var r = robots[id]
 
 	# Status
