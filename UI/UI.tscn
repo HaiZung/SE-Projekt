@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=18 format=3 uid="uid://dc6t68g6ccu8h"]
 
 [ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 [ext_resource type="Script" uid="uid://b3axa7bpmkxfe" path="res://UI/ui.gd" id="1_e707p"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://brhvj78rfw06i" path="res://UI/heading_1_expanded_4.gd" id="5_f1fl4"]
 [ext_resource type="Script" uid="uid://osil7ioblbjs" path="res://UI/testanimation.gd" id="6_jqf55"]
 [ext_resource type="PackedScene" uid="uid://cuyci8m3gb3v4" path="res://karte/map.tscn" id="7_byuxr"]
+[ext_resource type="Script" uid="uid://fmcir6aw5052" path="res://UI/http_request.gd" id="8_d050y"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
 bg_color = Color(1, 1, 1, 1)
@@ -330,5 +331,8 @@ libraries = {
 
 [node name="MapRoot" parent="." instance=ExtResource("7_byuxr")]
 position = Vector2(579, 323)
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+script = ExtResource("8_d050y")
 
 [connection signal="pressed" from="UILayer/MainLayout/TopBar/MenuButton" to="." method="_on_menu_button_pressed"]

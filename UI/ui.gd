@@ -17,6 +17,8 @@ extends Control
 
 @onready var window_panel := $UILayer/MainLayout/WindowPanel
 
+@onready var api := $HTTPRequest as HTTPRequest
+
 var selected_robot_id := 0
 var panel_open := true
 
@@ -70,8 +72,8 @@ func _on_robot_selected(id: int) -> void:
 	var r = robots[id]
 
 	# Status
-	sec_status.set_lines(r["status"])
-
+	#sec_status.set_lines(r["status"])
+	sec_status.set_lines(await api.get_status_for_robot(id +1))
 	# Route
 	if r["route"].is_empty():
 		sec_route.set_lines(["Keine Route"])
@@ -79,12 +81,18 @@ func _on_robot_selected(id: int) -> void:
 		sec_route.set_lines(r["route"])
 
 	# Pakete
-	if r["packages"].is_empty():
-		sec_packages.set_lines(["Keine Pakete"])
-	else:
-		sec_packages.set_lines(r["packages"])
+	sec_packages.set_lines(await api.get_packages_for_robot(id +1))
+	#if r["packages"].is_empty():
+	#	sec_packages.set_lines(["Keine Pakete"])
+	#else:
+	#	sec_packages.set_lines(r["packages"])
 
 
 func _on_menu_button_pressed():
 	panel_open = !panel_open
 	window_panel.visible = panel_open
+
+
+
+func check_api_connection()->bool:
+	return true
