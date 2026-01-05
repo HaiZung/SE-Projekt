@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 import asyncio
-from app.db import db
+from db import db
 
 ROOT = Path(__file__).resolve().parents[2]  # .../karte
 STOPS_FILE = ROOT / "KVV_Haltestellen_v2.json"
