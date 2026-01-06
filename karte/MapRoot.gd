@@ -3,6 +3,7 @@ extends Node2D
 const TILE_URL := "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 const TILE_SIZE := 256
 var zoom: int = 14
+@onready var route_line: Line2D = $RouteLine
 
 
 func _ready() -> void:
@@ -33,6 +34,24 @@ func _ready() -> void:
 
 	load_geojson_lines("res://karte/KVVLinesGeoJSON_v2.json")
 	load_stops_from_kvv_json("res://karte/KVV_Haltestellen_v2.json")
+
+	# -------------------------------
+	# TEST-ROUTE zeichnen
+	# -------------------------------
+
+	var test_route_latlon := [
+		Vector2(49.0069, 8.4037),  # Zentrum
+		Vector2(49.0105, 8.4150),
+		Vector2(49.0150, 8.4300),
+		Vector2(49.0200, 8.4450)
+	]
+
+	draw_route_from_latlon(test_route_latlon)
+	$Train.set_route_from_line(route_line)
+
+
+
+	
 
 
 
@@ -107,6 +126,21 @@ func latlon_to_world(lat: float, lon: float, z: int) -> Vector2:
 	var x_tile := (lon + 180.0) / 360.0 * n
 	var y_tile := (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / PI) / 2.0 * n
 	return Vector2(x_tile * TILE_SIZE, y_tile * TILE_SIZE)
+
+func draw_route_from_latlon(latlon_points: Array) -> void:
+	route_line.clear_points()
+	route_line.width = 5.0
+	route_line.default_color = Color(1, 0, 0, 1)
+	route_line.z_index = 1500
+	route_line.z_as_relative = false
+
+	for ll in latlon_points:
+		var lat: float = ll.x
+		var lon: float = ll.y
+		var world_pos := latlon_to_world(lat, lon, zoom)
+		route_line.add_point(world_pos)
+
+
 
 # -------------------------------
 # KVV GeoJSON Linien laden 
