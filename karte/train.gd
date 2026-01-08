@@ -1,7 +1,7 @@
 extends Node2D
 
-@export var speed: float = 120.0      # Pixel pro Sekunde
-@export var loop: bool = true
+@export var speed: float = 40.0      # Pixel pro Sekunde
+@export var loop: bool = false
 
 var route: PackedVector2Array
 var segment: int = 0

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cblaucyewcf83" path="res://karte/MapRoot.gd" id="1_c7s6e"]
 [ext_resource type="Script" uid="uid://dowc8nxfy5x5s" path="res://karte/train.gd" id="2_bdffw"]
-[ext_resource type="Texture2D" uid="uid://dwf6h1bala48y" path="res://icon.svg" id="3_7t8su"]
+[ext_resource type="Texture2D" uid="uid://beup0jrwfs17" path="res://RobotIcon.png" id="3_7t8su"]
 
 [node name="MapRoot" type="Node2D"]
 script = ExtResource("1_c7s6e")
@@ -19,4 +19,5 @@ script = ExtResource("1_c7s6e")
 script = ExtResource("2_bdffw")
 
 [node name="Sprite2D" type="Sprite2D" parent="Train"]
+scale = Vector2(0.09, 0.09)
 texture = ExtResource("3_7t8su")
