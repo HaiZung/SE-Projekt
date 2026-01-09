@@ -19,6 +19,11 @@ extends Control
 
 @onready var api := $HTTPRequest as HTTPRequest
 
+# --- Map Root ---
+@export var map_root_path: NodePath
+@onready var map_root: Node = get_node_or_null(map_root_path)
+
+
 var selected_robot_id := 0
 var panel_open := true
 
@@ -53,12 +58,13 @@ var robots := [
 
 func _ready():
 	# Buttons verbinden
-	for i in header_buttons.size():
+	for i in range(header_buttons.size()):
 		header_buttons[i].pressed.connect(func(): _on_robot_selected(i))
 
 	# Startzustand
 	header_buttons[0].button_pressed = true
 	_on_robot_selected(0)
+	
 
 func _on_robot_selected(id: int) -> void:
 	selected_robot_id = id
@@ -86,6 +92,11 @@ func _on_robot_selected(id: int) -> void:
 	#	sec_packages.set_lines(["Keine Pakete"])
 	#else:
 	#	sec_packages.set_lines(r["packages"])
+
+	# Wenn R1 gewählt wird (id == 0), Kamera zum Roboter
+	if id == 0 and map_root and map_root.has_method("focus_on_train"):
+		map_root.call("focus_on_train", true)
+
 
 
 func _on_menu_button_pressed():

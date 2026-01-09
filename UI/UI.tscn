@@ -1,8 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=19 format=3 uid="uid://dc6t68g6ccu8h"]
 
 [ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 [ext_resource type="Script" uid="uid://b3axa7bpmkxfe" path="res://UI/ui.gd" id="1_e707p"]
 [ext_resource type="Script" uid="uid://wj6rcqu0hhni" path="res://UI/heading_1_expanded_2.gd" id="2_dhe1o"]
+[ext_resource type="Texture2D" uid="uid://borndre2orwib" path="res://UI/Icons/RobotIcon.png" id="2_qgmx8"]
 [ext_resource type="Script" uid="uid://kc0viaurn4if" path="res://UI/heading_1_expanded_3.gd" id="3_q0uhn"]
 [ext_resource type="Script" uid="uid://brhvj78rfw06i" path="res://UI/heading_1_expanded_4.gd" id="5_f1fl4"]
 [ext_resource type="Script" uid="uid://osil7ioblbjs" path="res://UI/testanimation.gd" id="6_jqf55"]
@@ -60,10 +61,10 @@ tracks/0/path = NodePath("MeshInstance3D:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0.033333335, 1),
+"times": PackedFloat32Array(0.0333333, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector3(0, 0, 0), Vector3(0, 0, 1.2081903)]
+"values": [Vector3(0, 0, 0), Vector3(0, 0, 1.20819)]
 }
 
 [sub_resource type="Animation" id="Animation_vx7wu"]
@@ -85,6 +86,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_e707p")
+map_root_path = NodePath("MapRoot")
 
 [node name="UILayer" type="CanvasLayer" parent="."]
 
@@ -94,7 +96,7 @@ anchor_right = 0.293
 anchor_bottom = 1.0
 offset_left = 20.0
 offset_top = 20.0
-offset_right = -0.53601074
+offset_right = -0.536011
 offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -109,6 +111,9 @@ custom_minimum_size = Vector2(50, 30)
 layout_mode = 2
 tooltip_text = "Roboterdetaillansicht
 "
+icon = ExtResource("2_qgmx8")
+icon_alignment = 1
+expand_icon = true
 
 [node name="WindowPanel" type="PanelContainer" parent="UILayer/MainLayout"]
 layout_mode = 2
@@ -134,9 +139,9 @@ alignment = 1
 [node name="RedBtn1" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R1
 "
@@ -144,27 +149,27 @@ text = "R1
 [node name="RedBtn2" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R2"
 
 [node name="RedBtn3" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R3"
 
 [node name="RedBtn4" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R4"
 
@@ -186,10 +191,10 @@ script = ExtResource("1_6dd3c")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.593134, 0.593134, 0.593134, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_pressed_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_hover_color = Color(0.5931336, 0.59313357, 0.59313357, 1)
+theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "Status
 "
@@ -223,10 +228,10 @@ script = ExtResource("2_dhe1o")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_pressed_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_hover_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
+theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "Geplante Route"
 flat = true
@@ -259,10 +264,10 @@ script = ExtResource("3_q0uhn")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_pressed_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_hover_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
+theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "Paketliste"
 flat = true
@@ -295,10 +300,10 @@ script = ExtResource("5_f1fl4")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_focus_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_pressed_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
-theme_override_colors/font_hover_color = Color(0.5921569, 0.5921569, 0.5921569, 1)
+theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "3D Ansicht"
 flat = true
@@ -330,7 +335,6 @@ libraries = {
 }
 
 [node name="MapRoot" parent="." instance=ExtResource("7_byuxr")]
-position = Vector2(579, 323)
 
 [node name="HTTPRequest" type="HTTPRequest" parent="."]
 script = ExtResource("8_d050y")

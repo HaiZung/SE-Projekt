@@ -610,3 +610,24 @@ func _add_stop_from_coord(coord_v: Variant) -> void:
 
 	# Damit es über den Tiles & Linien liegt:
 	$OverlayContainer.add_child(dot)
+
+
+
+# Damit der Roboter im UI fokussiert werden kann
+
+func focus_on_train(smooth: bool = true) -> void:
+	var cam: Camera2D = $Camera2D
+	var train: Node2D = $Train
+	if cam == null or train == null:
+		return
+
+	var target := train.global_position
+
+	if not smooth:
+		cam.global_position = target
+		return
+
+	var t := create_tween()
+	t.set_trans(Tween.TRANS_QUAD)
+	t.set_ease(Tween.EASE_OUT)
+	t.tween_property(cam, "global_position", target, 0.35)
