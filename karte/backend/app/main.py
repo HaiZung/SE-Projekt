@@ -69,3 +69,28 @@ async def add_station(data: dict = Body(...)):
 async def add_trainid(data: dict = Body(...)):
     await db.TrainID.insert_one(data)
     return {"status": "success", "data": serialize(data)}
+
+
+@app.put("/robotstates")
+async def update_robotstate(data: dict = Body(...)):
+    # Extract the custom ID and the new status from the payload
+    rid = data.get("roboter_id")
+    new_status = data.get("status")
+    
+    if rid is None:
+        return {"status": "error", "message": "roboter_id is required"}
+
+    # Update the document where roboter_id matches
+    result = await db.Robotstates.update_one(
+        {"roboter_id": rid}, # Filter
+        {"$set": {"status": new_status}} # Update operation
+    )
+
+    if result.matched_count == 0:
+        return {"status": "error", "message": f"No robot found with roboter_id {rid}"}
+
+    return {
+        "status": "success", 
+        "updated_roboter_id": rid, 
+        "new_status": new_status
+    }

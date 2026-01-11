@@ -21,7 +21,8 @@ func _ready():
 	#add_package(1,2.0,"2x2x3",4)
 	#add_robotstates(1, "Batterie leer")
 	#add_stations("Station_34")
-	add_trainid(334, "12:22", "13:22", "k1", "k5")
+	#add_trainid(334, "12:22", "13:22", "k1", "k5")
+	update_robot_status(1000, "lädt")
 
 	pass
 
@@ -154,3 +155,40 @@ func add_trainid(zugnummer: int, start: String, stop: String,von: String, bis: S
 	var data= {"Zugnummer": zugnummer, "Start": start, "Stop": stop, "Von": von, "Bis": bis}
 	var json= JSON.stringify(data)
 	await post_http(path_train_id, json)
+
+
+
+func update_http(path: String, payload: String) -> void:
+	print("Start PUT request for: " + url + path)
+
+	var headers = [
+		"Content-Type: application/json"
+	]
+
+	var err = request(
+		url + path,
+		headers,
+		HTTPClient.METHOD_PUT,
+		payload
+	)
+
+	if err != OK:
+		push_error("Request failed: %d" % err)
+		print("Request failed: %d" % err)
+		return
+
+	var result = await request_completed
+	var response_code = result[1]
+
+	if response_code < 200 or response_code >= 300:
+		push_error("HTTP Error %d" % response_code)
+		print("HTTP Error %d" % response_code)
+		return
+
+	print("PUT request success: " + url + path)
+
+
+func update_robot_status(roboter_id: int, status: String)-> void: 
+	var data= {"roboter_id": roboter_id, "status": status}
+	var json= JSON.stringify(data)
+	await update_http(path_robot_states, json)
