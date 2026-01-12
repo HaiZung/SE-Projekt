@@ -98,9 +98,10 @@ func _on_robot_selected(id: int) -> void:
 	#else:
 	#	sec_packages.set_lines(r["packages"])
 
-	# Wenn R1 gewählt wird (id == 0), Kamera zum Roboter
-	if id == 0 and map_root and map_root.has_method("focus_on_train"):
-		map_root.call("focus_on_train", true)
+	# Kamera zum gewählten Roboter bewegen
+	var day_sim := map_root.get_node_or_null("DaySimulation")
+	if day_sim and day_sim.has_method("focus_camera_on_robot"):
+		day_sim.focus_camera_on_robot(id + 1)
 
 
 

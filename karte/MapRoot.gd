@@ -552,7 +552,7 @@ func _coords_to_points(coords) -> Array:
 
 	return pts
 
-#wird nicht gebrauch?
+
 
 func _add_linestring_points(line: Line2D, coords) -> void:
 	if coords == null or not (coords is Array):
@@ -650,8 +650,6 @@ func load_stops_from_kvv_json(path: String) -> void:
 
 	print("Stops added:", added)
 
-
-#wird nicht gebrauch?
 
 func _add_stop_from_coord(coord_v: Variant) -> void:
 	if not (coord_v is Array):

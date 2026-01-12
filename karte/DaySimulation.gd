@@ -30,7 +30,7 @@ extends Node
 @export var r3_start_id: String = "de:08212:90"		 # Karlsruhe Hbf
 @export var r3_target_id: String = "de:08212:80"     # Kronenplatz
 
-# Robot4: “Techniker” – startet standardmäßig nicht, sondern fährt bei Defekt los
+# Robot4: lädt nur, keine Route
 @export var r4_enabled: bool = false
 @export var r4_offset_progress: float = 50.0
 
@@ -73,7 +73,70 @@ var has_started_once := false
 var paused := false
 var initialized := false  
 
-
+func _ready() -> void:
+	# Warte bis alles geladen ist
+	await get_tree().process_frame
+	await get_tree().process_frame
+	
+	# Backend laden für Haltestellen-Positionen
+	if not _load_backend():
+		return
+	
+	var hbf_world := stop_world_by_id.get("de:08212:90", Vector2.ZERO) as Vector2
+	
+	# Kamera auf HBF
+	var cam := map_root.get_node_or_null("Camera2D") as Camera2D
+	if cam and hbf_world != Vector2.ZERO:
+		cam.make_current()
+		cam.global_position = hbf_world
+		cam.zoom = Vector2(0.7, 0.7)
+	
+	# Alle 4 Roboter am HBF initialisieren
+	if hbf_world != Vector2.ZERO and map_root != null:
+		# Mini-Curve für statische Position am HBF (etwas länger für Verteilung)
+		var init_pts := PackedVector2Array([hbf_world, hbf_world + Vector2(50, 0)])
+		
+		# Curves für alle 4 Roboter setzen
+		r1_path.curve = map_root.points_to_curve(init_pts)
+		r2_path.curve = map_root.points_to_curve(init_pts)
+		r3_path.curve = map_root.points_to_curve(init_pts)
+		r4_path.curve = map_root.points_to_curve(init_pts)
+		
+		await get_tree().process_frame
+		
+		# PathFollow2D mit leicht unterschiedlichen Positionen
+		var offsets := [0.0, 12.0, 24.0, 36.0]  # Pixel-Offsets entlang der Curve
+		var follows := [r1_follow, r2_follow, r3_follow, r4_follow]
+		
+		for i in range(4):
+			follows[i].loop = false
+			follows[i].rotates = true
+			follows[i].progress = offsets[i] + 0.1
+		
+		await get_tree().process_frame
+		
+		for i in range(4):
+			follows[i].progress = offsets[i]
+		
+		await get_tree().process_frame
+		
+		# Alle sichtbar machen und einfärben
+		_set_robot_visible(1)
+		_set_robot_visible(2)
+		_set_robot_visible(3)
+		_set_robot_visible(4)
+		
+		_set_robot_color(1)
+		_set_robot_color(2)
+		_set_robot_color(3)
+		_set_robot_color(4)
+		
+		print("All 4 robots initialized at HBF:")
+		print("R1:", r1_follow.global_position)
+		print("R2:", r2_follow.global_position)
+		print("R3:", r3_follow.global_position)
+		print("R4:", r4_follow.global_position)
+	
 
 # -----------------------------
 # Backend-Daten
@@ -179,7 +242,7 @@ func _run(my_id: int) -> void:
 		push_error("One or more routes are too short. Check line + station ids.")
 		print("sizes r1=", r1_pts.size(), " r2=", r2_pts.size(), " r3=", r3_pts.size())
 		return
-
+	
 	# 3) Curves setzen (dein map_root hat points_to_curve)
 	r1_path.curve = map_root.points_to_curve(r1_pts)
 	print("HBF world:", stop_world_by_id.get("de:08212:90", Vector2.ZERO))
@@ -190,8 +253,9 @@ func _run(my_id: int) -> void:
 	r2_path.curve = map_root.points_to_curve(r2_pts)
 	r3_path.curve = map_root.points_to_curve(r3_pts)
 
-	# Robot4: erstmal “charging” (keine Route)
-	r4_path.curve = null
+	# Robot4: erstmal "charging" am HBF (statische Position)
+	var r4_pts := PackedVector2Array([hbf_world, hbf_world + Vector2(1, 0)])
+	r4_path.curve = map_root.points_to_curve(r4_pts)
 	initialized = true
 
 	print("CURVE COUNTS:",
@@ -210,7 +274,7 @@ func _run(my_id: int) -> void:
 
 	_setup_follow(r2_follow, 15.0)
 	_setup_follow(r3_follow, 30.0)
-	_setup_follow(r4_follow, r4_offset_progress)
+	_setup_follow(r4_follow, 0.0)  # Robot 4 am Anfang der Curve
 
 	_set_robot_visible(1)
 	_set_robot_visible(2)
@@ -238,7 +302,7 @@ func _run(my_id: int) -> void:
 	r1_running = true
 	r2_running = true
 	r3_running = true
-	r4_running = false
+	r4_running = true
 
 	# 7) Robot3 wird defekt
 	await get_tree().create_timer(break_after_seconds).timeout
@@ -470,17 +534,6 @@ func _find_nearest_station_index(stations: Array, world: Vector2) -> int:
 
 	return best_i
 
-func _nearest_point_on_polyline(pts: PackedVector2Array, world: Vector2) -> Vector2:
-	if pts.size() == 0:
-		return world
-	var best := pts[0]
-	var best_d := INF
-	for p in pts:
-		var d := p.distance_squared_to(world)
-		if d < best_d:
-			best_d = d
-			best = p
-	return best
 
 func _compress_consecutive_duplicates(pts: PackedVector2Array) -> PackedVector2Array:
 	var out := PackedVector2Array()
@@ -554,6 +607,9 @@ func _set_robot_visible(i: int) -> void:
 		robot.visible = true
 		robot.z_as_relative = false
 		robot.z_index = 250
+		print("Set Robot", i, "visible. Position:", robot.global_position)
+	else:
+		print("WARNING: Robot", i, "node not found!")
 
 func _set_robot_color(i: int) -> void:
 	var sprite := map_root.get_node_or_null("Robots/Robot%dRig/Path/Follow/Robot%d/Sprite2D" % [i, i]) as Sprite2D
@@ -627,17 +683,34 @@ func reset_simulation() -> void:
 			r2_pts = build_route_points(r2_line, r2_start_id, r2_target_id)
 			r3_pts = build_route_points(r3_line, r3_start_id, r3_target_id)
 
-	# 3) Curves wieder auf "Hinweg" setzen (NICHT nullen!)
-	if r1_pts.size() >= 2: r1_path.curve = map_root.points_to_curve(r1_pts)
-	if r2_pts.size() >= 2: r2_path.curve = map_root.points_to_curve(r2_pts)
-	if r3_pts.size() >= 2: r3_path.curve = map_root.points_to_curve(r3_pts)
-	r4_path.curve = null
-
-	# 4) Follow wieder an den Anfang + Roboter sichtbar
-	_setup_follow(r1_follow, 0.0)
-	_setup_follow(r2_follow, 15.0)
-	_setup_follow(r3_follow, 30.0)
-	_setup_follow(r4_follow, r4_offset_progress)
+	# 3) Curves wieder auf "Hinweg" setzen - aber erstmal alle am HBF
+	var hbf_world := stop_world_by_id.get("de:08212:90", Vector2.ZERO) as Vector2
+	if hbf_world != Vector2.ZERO:
+		# Gleiche Mini-Curve wie beim Programmstart
+		var init_pts := PackedVector2Array([hbf_world, hbf_world + Vector2(50, 0)])
+		
+		r1_path.curve = map_root.points_to_curve(init_pts)
+		r2_path.curve = map_root.points_to_curve(init_pts)
+		r3_path.curve = map_root.points_to_curve(init_pts)
+		r4_path.curve = map_root.points_to_curve(init_pts)
+		
+		await get_tree().process_frame
+		
+		# Gleiche Offsets wie beim Start
+		var offsets := [0.0, 12.0, 24.0, 36.0]
+		var follows := [r1_follow, r2_follow, r3_follow, r4_follow]
+		
+		for i in range(4):
+			follows[i].loop = false
+			follows[i].rotates = true
+			follows[i].progress = offsets[i] + 0.1
+		
+		await get_tree().process_frame
+		
+		for i in range(4):
+			follows[i].progress = offsets[i]
+		
+		await get_tree().process_frame
 
 	_set_robot_visible(1)
 	_set_robot_visible(2)
@@ -650,7 +723,6 @@ func reset_simulation() -> void:
 	_set_robot_color(4)
 
 	# 5) Kamera wieder auf HBF (optional, aber fühlt sich "reset" an)
-	var hbf_world := stop_world_by_id.get("de:08212:90", Vector2.ZERO) as Vector2
 	var cam := map_root.get_node_or_null("Camera2D") as Camera2D
 	if cam and hbf_world != Vector2.ZERO:
 		cam.global_position = hbf_world
@@ -664,19 +736,25 @@ func reset_simulation() -> void:
 
 	print("RESET done. Robots snapped to start.")
 
-
-func _reset_follow(f: PathFollow2D) -> void:
-	if f == null:
+# =========================================================
+# KAMERA FOKUS
+# =========================================================
+func focus_camera_on_robot(robot_id: int) -> void:
+	var cam := map_root.get_node_or_null("Camera2D") as Camera2D
+	if not cam:
+		push_warning("Camera2D not found")
 		return
-	f.progress = 0.0
-	f.position = Vector2.ZERO
-	f.rotation = 0.0
-	f.scale = Vector2.ONE
-func _reset_robot(i: int) -> void:
-	var robot := map_root.get_node_or_null(
-		"Robots/Robot%dRig/Path/Follow/Robot%d" % [i, i]
-	) as Node2D
-	if robot:
-		robot.visible = true
-		robot.position = Vector2.ZERO
-		robot.rotation = 0.0
+	
+	var follow: PathFollow2D = null
+	match robot_id:
+		1: follow = r1_follow
+		2: follow = r2_follow
+		3: follow = r3_follow
+		4: follow = r4_follow
+		_:
+			push_warning("Invalid robot_id: " + str(robot_id))
+			return
+	
+	if follow:
+		cam.global_position = follow.global_position
+		cam.zoom = Vector2(0.7, 0.7)
