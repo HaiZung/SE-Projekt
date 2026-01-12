@@ -5,6 +5,7 @@ extends Node
 # -----------------------------
 @export var lines_path := "res://karte/KVV_Lines_v2.json"
 @export var stops_path := "res://karte/KVV_Haltestellen_v2.json"
+@export var geojson_lines_path := "res://karte/KVVLinesGeoJSON_v2.json"
 
 # -----------------------------
 # Simulation / Timing
@@ -17,22 +18,21 @@ extends Node
 # -----------------------------
 # Route-Config pro Roboter (Backend-basiert)
 # -----------------------------
-@export var r1_line: String = "2"
+@export var r1_line: String = "S1"
 @export var r1_start_id: String = "de:08212:90"      # Karlsruhe Hbf
-@export var r1_target_id: String = "de:08212:1001"   # Durlacher Tor/KIT (U)
+@export var r1_target_id: String = "de:08212:1207"   # Karlsruhe Schloss Rüppurr
 
 @export var r2_line: String = "2"
-@export var r2_start_id: String = "de:08212:90"
-@export var r2_target_id: String = "de:08212:37"     # Europaplatz/Postgalerie
+@export var r2_start_id: String = "de:08212:90"		 # Karlsruhe Hbf
+@export var r2_target_id: String = "de:08212:39"     # Mühlburger Tor
 
 @export var r3_line: String = "3"
-@export var r3_start_id: String = "de:08212:90"
-@export var r3_target_id: String = "de:08212:39"     # Mühlburger Tor
+@export var r3_start_id: String = "de:08212:90"		 # Karlsruhe Hbf
+@export var r3_target_id: String = "de:08212:80"     # Kronenplatz
 
 # Robot4: “Techniker” – startet standardmäßig nicht, sondern fährt bei Defekt los
-@export var r4_enabled: bool = true
-@export var r4_speed := 160.0
-@export var r4_offset_progress := 45.0
+@export var r4_enabled: bool = false
+@export var r4_offset_progress: float = 50.0
 
 # -----------------------------
 # Node refs
@@ -62,7 +62,18 @@ var r2_running := false
 var r3_running := false
 var r4_running := false
 
+# Defekt-Status speichern
+var r1_defective := false
+var r2_defective := false
+var r3_defective := false
+var r4_defective := false
+
 var _run_id: int = 0
+var has_started_once := false
+var paused := false
+var initialized := false  
+
+
 
 # -----------------------------
 # Backend-Daten
@@ -80,21 +91,44 @@ var r3_pts := PackedVector2Array()
 # START
 # =========================================================
 func start_simulation() -> void:
-	if running:
+	# Wenn schon läuft: nichts tun
+	if running and not paused:
+		print("SIM: already running -> ignore start")
 		return
+
+	# Wenn pausiert: nur weiterlaufen lassen
+	if paused and initialized:
+		print("SIM RESUME")
+		paused = false
+		running = true
+		# Nur die nicht-defekten Roboter wieder starten
+		if not r1_defective:
+			r1_running = true
+		if not r2_defective:
+			r2_running = true
+		if not r3_defective:
+			r3_running = true
+		if not r4_defective:
+			r4_running = true
+		set_process(true)
+		return
+
+	# Sonst: echter erster Start
+	print("SIM START (fresh)")
+	paused = false
 	running = true
 	_run_id += 1
 	var my_id := _run_id
-	print("SIM START id=", my_id)
 	set_process(true)
 
 	await _run(my_id)
 
 	# nur wenn das noch der aktuelle Run ist
-	if my_id == _run_id:
+	if my_id == _run_id and not paused:
 		print("SIM END id=", my_id)
 		running = false
 		set_process(false)
+
 
 
 func _process(delta: float) -> void:
@@ -158,6 +192,7 @@ func _run(my_id: int) -> void:
 
 	# Robot4: erstmal “charging” (keine Route)
 	r4_path.curve = null
+	initialized = true
 
 	print("CURVE COUNTS:",
 		"r1=", r1_path.curve.get_point_count() if r1_path.curve else -1,
@@ -168,7 +203,7 @@ func _run(my_id: int) -> void:
 	# 4) Follow Setup (Offsets nur damit sie nicht exakt übereinander liegen)
 	_setup_follow(r1_follow, 0.0)
 	var r1 := map_root.get_node_or_null("Robots/Robot1Rig/Path/Follow/Robot1") as Node2D
-	print("Robot1 local pos in Follow:", r1.position if r1 else "NULL")
+	print("Robot1 local pos in Follow:", str(r1.position) if r1 else "NULL")
 	print("Robot1Rig pos:", map_root.get_node("Robots/Robot1Rig").position)
 	print("Path pos:", r1_path.position, "Follow pos:", r1_follow.position)
 	print("Rig scale:", map_root.get_node("Robots/Robot1Rig").scale, "Follow scale:", r1_follow.scale)
@@ -181,6 +216,11 @@ func _run(my_id: int) -> void:
 	_set_robot_visible(2)
 	_set_robot_visible(3)
 	_set_robot_visible(4)
+	
+	_set_robot_color(1)
+	_set_robot_color(2)
+	_set_robot_color(3)
+	_set_robot_color(4)
 
 	await get_tree().process_frame
 
@@ -203,6 +243,7 @@ func _run(my_id: int) -> void:
 	# 7) Robot3 wird defekt
 	await get_tree().create_timer(break_after_seconds).timeout
 	r3_running = false
+	r3_defective = true  # Defekt-Status speichern
 	await _set_state(3, "defective")
 
 	# 8) Warten bis 1 + 2 am Ende (am Ziel)
@@ -514,6 +555,17 @@ func _set_robot_visible(i: int) -> void:
 		robot.z_as_relative = false
 		robot.z_index = 250
 
+func _set_robot_color(i: int) -> void:
+	var sprite := map_root.get_node_or_null("Robots/Robot%dRig/Path/Follow/Robot%d/Sprite2D" % [i, i]) as Sprite2D
+	if sprite:
+		var colors := [
+			Color(0.2, 0.6, 1.0),  # Robot 1: Blau
+			Color(1.0, 0.4, 0.2),  # Robot 2: Orange
+			Color(0.3, 1.0, 0.3),  # Robot 3: Grün
+			Color(1.0, 1.0, 0.2)   # Robot 4: Gelb (Techniker)
+		]
+		sprite.modulate = colors[i - 1]
+
 func _normalize_station_id(id: String) -> String:
 	var s := id.strip_edges()
 	# Wenn Stop nicht existiert und ID hat extra Suffix (z.B. :4), schneide hinten ab
@@ -526,22 +578,105 @@ func _normalize_station_id(id: String) -> String:
 
 
 func stop_simulation() -> void:
-	print("SIM STOP pressed. was running=", running, " old_id=", _run_id)
+	print("SIM PAUSE pressed. running=", running)
 
-	# bricht ALLE laufenden _run()-Coroutines ab
-	_run_id += 1
+	if not initialized:
+		return
 
+	paused = true
 	running = false
+
+	# Bewegungen stoppen
 	r1_running = false
 	r2_running = false
 	r3_running = false
 	r4_running = false
 
-	# extra hart: Prozess aus, dann kann wirklich nix mehr progress adden
 	set_process(false)
 
-	# optional: States ohne await (feuer & vergiss)
-	_set_state(1, "stopped")
-	_set_state(2, "stopped")
-	_set_state(3, "stopped")
-	_set_state(4, "stopped")
+	# optional UI/backend status:
+	_set_state(1, "paused")
+	_set_state(2, "paused")
+	_set_state(3, "paused")
+	_set_state(4, "paused")
+
+	
+func reset_simulation() -> void:
+	print("SIM RESET")
+
+	# 1) alles stoppen + laufende awaits killen
+	_run_id += 1
+	paused = false
+	running = false
+	r1_running = false
+	r2_running = false
+	r3_running = false
+	r4_running = false
+	# Defekt-Status zurücksetzen
+	r1_defective = false
+	r2_defective = false
+	r3_defective = false
+	r4_defective = false
+	set_process(false)
+
+	# 2) sicherstellen, dass wir wieder Start-Pfade haben
+	#    (wenn noch keine pts da sind, einmal neu bauen)
+	if r1_pts.size() < 2 or r2_pts.size() < 2 or r3_pts.size() < 2:
+		if _load_backend():
+			r1_pts = build_route_points(r1_line, r1_start_id, r1_target_id)
+			r2_pts = build_route_points(r2_line, r2_start_id, r2_target_id)
+			r3_pts = build_route_points(r3_line, r3_start_id, r3_target_id)
+
+	# 3) Curves wieder auf "Hinweg" setzen (NICHT nullen!)
+	if r1_pts.size() >= 2: r1_path.curve = map_root.points_to_curve(r1_pts)
+	if r2_pts.size() >= 2: r2_path.curve = map_root.points_to_curve(r2_pts)
+	if r3_pts.size() >= 2: r3_path.curve = map_root.points_to_curve(r3_pts)
+	r4_path.curve = null
+
+	# 4) Follow wieder an den Anfang + Roboter sichtbar
+	_setup_follow(r1_follow, 0.0)
+	_setup_follow(r2_follow, 15.0)
+	_setup_follow(r3_follow, 30.0)
+	_setup_follow(r4_follow, r4_offset_progress)
+
+	_set_robot_visible(1)
+	_set_robot_visible(2)
+	_set_robot_visible(3)
+	_set_robot_visible(4)
+	
+	_set_robot_color(1)
+	_set_robot_color(2)
+	_set_robot_color(3)
+	_set_robot_color(4)
+
+	# 5) Kamera wieder auf HBF (optional, aber fühlt sich "reset" an)
+	var hbf_world := stop_world_by_id.get("de:08212:90", Vector2.ZERO) as Vector2
+	var cam := map_root.get_node_or_null("Camera2D") as Camera2D
+	if cam and hbf_world != Vector2.ZERO:
+		cam.global_position = hbf_world
+
+	# 6) Zustand zurücksetzen
+	initialized = true  # wichtig: wir HABEN ja wieder Curves gesetzt
+	_set_state(1, "ready")
+	_set_state(2, "ready")
+	_set_state(3, "ready")
+	_set_state(4, "ready")
+
+	print("RESET done. Robots snapped to start.")
+
+
+func _reset_follow(f: PathFollow2D) -> void:
+	if f == null:
+		return
+	f.progress = 0.0
+	f.position = Vector2.ZERO
+	f.rotation = 0.0
+	f.scale = Vector2.ONE
+func _reset_robot(i: int) -> void:
+	var robot := map_root.get_node_or_null(
+		"Robots/Robot%dRig/Path/Follow/Robot%d" % [i, i]
+	) as Node2D
+	if robot:
+		robot.visible = true
+		robot.position = Vector2.ZERO
+		robot.rotation = 0.0

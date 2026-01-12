@@ -71,26 +71,27 @@ async def init_db():
 
     # --- PlannedRoutes Collection ---
     # Simulation
+    #muss korregiert werden
     planned_collection = db["PlannedRoutes"]
     if await planned_collection.count_documents({}) == 0:
         await planned_collection.insert_many([
             {
                 "roboter_id": 1,
-                "line_id": "S8",
+                "line_id": "S1",
                 "stations": ["de:08216:32187", "de:08216:32184", "...", "de:08212:7"],
-                "note": "HBF -> Durlacher Tor"
+                "note": "HBF -> Karlsruhe Schloss Rüppurr"
             },
             {
                 "roboter_id": 2,
                 "line_id": "2",
                 "stations": ["de:08212:240", "de:08212:239", "...", "de:08212:4500"],
-                "note": "HBF -> Europaplatz"
+                "note": "HBF -> Mühlburger Tor"
             },
             {
                 "roboter_id": 3,
                 "line_id": "3",
                 "stations": ["de:08212:308", "de:08212:307", "...", "de:08212:314"],
-                "note": "HBF -> Mühlburger Tor"
+                "note": "HBF -> Kronenplatz"
             },
             {
                 "roboter_id": 4,

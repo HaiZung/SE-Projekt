@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=22 format=3 uid="uid://dc6t68g6ccu8h"]
 
 [ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 [ext_resource type="Script" uid="uid://b3axa7bpmkxfe" path="res://UI/ui.gd" id="1_e707p"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://fmcir6aw5052" path="res://UI/http_request.gd" id="8_d050y"]
 [ext_resource type="Script" uid="uid://c71dvg71mkg3p" path="res://UI/StartSimulationButton.gd" id="8_vx7wu"]
 [ext_resource type="Script" uid="uid://bstu3qcy1fsad" path="res://UI/StopSimulationButton.gd" id="9_r2vy3"]
+[ext_resource type="Script" uid="uid://b44motvvlhs7m" path="res://UI/ResetSimulationButton.gd" id="10_qhxh2"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
 bg_color = Color(1, 1, 1, 1)
@@ -344,9 +345,6 @@ offset_left = -133.0
 offset_bottom = 70.0
 grow_horizontal = 0
 
-[node name="Simulation" type="Label" parent="UILayer/VBoxContainer"]
-layout_mode = 2
-
 [node name="StartSimulationButton" type="Button" parent="UILayer/VBoxContainer"]
 layout_mode = 2
 text = "Start Simulation"
@@ -356,6 +354,11 @@ script = ExtResource("8_vx7wu")
 layout_mode = 2
 text = "Stop Simulation"
 script = ExtResource("9_r2vy3")
+
+[node name="ResetSimulationButton" type="Button" parent="UILayer/VBoxContainer"]
+layout_mode = 2
+text = "Reset Simulation"
+script = ExtResource("10_qhxh2")
 
 [node name="MapRoot" parent="." instance=ExtResource("7_byuxr")]
 
