@@ -27,7 +27,8 @@ async def init_db():
         await robot_collection.insert_many([
             {"roboter_id": 1},
             {"roboter_id": 2},
-            {"roboter_id": 3}
+            {"roboter_id": 3},
+            {"roboter_id": 4}
         ])
 
     # --- Packages Collection ---
@@ -62,7 +63,41 @@ async def init_db():
         await robotstates_collection.insert_many([
             {"roboter_id": 1, "status": "aktiv"},
             {"roboter_id": 2, "status": "inaktiv"},
-            {"roboter_id": 3, "status": "wartung"}
+            {"roboter_id": 3, "status": "wartung"},
+            {"roboter_id": 4, "status": "charging"}
         ])
 
     print("Database initialized (only missing collections were seeded).")
+
+    # --- PlannedRoutes Collection ---
+    # Simulation
+    planned_collection = db["PlannedRoutes"]
+    if await planned_collection.count_documents({}) == 0:
+        await planned_collection.insert_many([
+            {
+                "roboter_id": 1,
+                "line_id": "S8",
+                "stations": ["de:08216:32187", "de:08216:32184", "...", "de:08212:7"],
+                "note": "HBF -> Durlacher Tor"
+            },
+            {
+                "roboter_id": 2,
+                "line_id": "2",
+                "stations": ["de:08212:240", "de:08212:239", "...", "de:08212:4500"],
+                "note": "HBF -> Europaplatz"
+            },
+            {
+                "roboter_id": 3,
+                "line_id": "3",
+                "stations": ["de:08212:308", "de:08212:307", "...", "de:08212:314"],
+                "note": "HBF -> Mühlburger Tor"
+            },
+            {
+                "roboter_id": 4,
+                "line_id": "HBF",
+                "stations": [],
+                "note": "Bleibt zum Laden am HBF"
+            }
+        ])
+
+

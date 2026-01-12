@@ -5,6 +5,7 @@ const TILE_SIZE := 256
 var zoom: int = 14
 @onready var route_line: Line2D = $RouteLine
 
+var stop_world_by_name: Dictionary = {}
 
 func _ready() -> void:
 	# Zentrum: Karlsruhe
@@ -12,6 +13,7 @@ func _ready() -> void:
 	var center_lat := 49.0069
 	var center_lon := 8.4037
 	$Camera2D.enabled = true
+	$Camera2D.make_current()
 
 
 	# Weltkoordinaten des Zentrums (selbe Funktion wie für Linien)
@@ -39,14 +41,7 @@ func _ready() -> void:
 	# TEST-ROUTE zeichnen
 	# -------------------------------
 
-	var test_route_latlon := [
-		Vector2(49.0069, 8.4037),  # Zentrum
-		Vector2(49.0105, 8.4150),
-		Vector2(49.0150, 8.4300),
-		Vector2(49.0200, 8.4450)
-	]
-
-	set_route_from_geojson("res://karte/KVVLinesGeoJSON_v2.json", "4")
+	# set_route_from_geojson("res://karte/KVVLinesGeoJSON_v2.json", "4")
 
 
 
@@ -141,6 +136,71 @@ func draw_route_from_latlon(latlon_points: Array) -> void:
 		var world_pos := latlon_to_world(lat, lon, zoom)
 		route_line.add_point(world_pos)
 
+		#	# Path2D aus der Line2D erzeugen
+		# _sync_path_from_line()
+
+		# # Follows initialisieren
+		# _setup_follows()
+
+
+# -------------------------------
+# GeoJSON Linien extrahieren
+# -------------------------------
+
+func get_route_points_from_geojson(path: String, line_id: String) -> PackedVector2Array:
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_error("GeoJSON nicht gefunden: %s" % path)
+		return PackedVector2Array()
+
+	var json_text: String = file.get_as_text()
+	file.close()
+
+	var data_v: Variant = JSON.parse_string(json_text)
+	if not (data_v is Dictionary):
+		return PackedVector2Array()
+
+	var data: Dictionary = data_v
+	if not data.has("features"):
+		return PackedVector2Array()
+
+	var features_v: Variant = data["features"]
+	if not (features_v is Array):
+		return PackedVector2Array()
+
+	var features: Array = features_v
+	var best_points: PackedVector2Array = PackedVector2Array()
+	var best_len: float = 0.0
+
+	for f_v in features:
+		if not (f_v is Dictionary):
+			continue
+		var f: Dictionary = f_v
+		var props_any: Variant = f.get("properties", {})
+		var props: Dictionary = props_any if props_any is Dictionary else {}
+
+		var candidate_raw: Variant = props.get("line", props.get("name", props.get("id", "")))
+		var candidate: String = str(candidate_raw).strip_edges()
+
+		if candidate == "" or candidate.find(line_id) == -1:
+			continue
+
+		var geom_any: Variant = f.get("geometry", null)
+		if not (geom_any is Dictionary):
+			continue
+		var geom: Dictionary = geom_any
+
+		var pts: PackedVector2Array = _geometry_to_points_longest_part(geom)
+		var L: float = _polyline_length(pts)
+		if pts.size() >= 2 and L > best_len:
+			best_len = L
+			best_points = pts
+
+	return best_points
+
+# -------------------------------
+
+
 func set_route_from_geojson(path: String, line_id: String) -> void:
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
@@ -216,10 +276,7 @@ func set_route_from_geojson(path: String, line_id: String) -> void:
 	for p in best_points:
 		route_line.add_point(p)
 
-	# Zug starten
-	$Train.set_route_from_line(route_line)
 
-	print("Route gesetzt aus GeoJSON:", line_id, " Punkte:", best_points.size(), " Länge:", best_len)
 
 #Hilfsfunktionen für Simulation
 func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
@@ -337,7 +394,7 @@ func load_geojson_lines(path: String) -> void:
 	var features: Array = features_v
 	print("GeoJSON features: ", features.size())
 
-	var limit: int = mini(200, features.size())
+	var limit: int = min(200, features.size())
 
 	var added: int = 0
 	var skipped: int = 0
@@ -577,6 +634,11 @@ func load_stops_from_kvv_json(path: String) -> void:
 
 		var world_pos: Vector2 = latlon_to_world(lat, lon, zoom)
 
+		var name: String = str(s.get("name", "")).strip_edges()
+		if name != "":
+			stop_world_by_name[name] = world_pos
+
+
 		var dot := StopDot.new()
 		dot.position = world_pos
 		dot.set_style(4.5, Color(1, 0, 0, 0.95)) # gut sichtbar
@@ -615,19 +677,327 @@ func _add_stop_from_coord(coord_v: Variant) -> void:
 
 # Damit der Roboter im UI fokussiert werden kann
 
-func focus_on_train(smooth: bool = true) -> void:
+func focus_on_robot1(smooth: bool = true) -> void:
 	var cam: Camera2D = $Camera2D
-	var train: Node2D = $Train
-	if cam == null or train == null:
+	var robot: Node2D = get_node_or_null("Robots/Robot1Rig/Path/Follow/Robot1")
+	if cam == null or robot == null:
 		return
 
-	var target := train.global_position
+	var target := robot.global_position
 
 	if not smooth:
 		cam.global_position = target
 		return
 
-	var t := create_tween()
-	t.set_trans(Tween.TRANS_QUAD)
-	t.set_ease(Tween.EASE_OUT)
-	t.tween_property(cam, "global_position", target, 0.35)
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_QUAD)
+	tw.set_ease(Tween.EASE_OUT)
+	tw.tween_property(cam, "global_position", target, 0.35)
+
+
+#Hilsfunktion für Routen-Trimmung
+#simulation
+
+func _nearest_point_index_on_route(route: PackedVector2Array, target: Vector2) -> int:
+	var best_i := 0
+	var best_d := INF
+	for i in range(route.size()):
+		var d := route[i].distance_squared_to(target)
+		if d < best_d:
+			best_d = d
+			best_i = i
+	return best_i
+
+func trim_route_from_nearest_projected(route: PackedVector2Array, start_pos: Vector2) -> PackedVector2Array:
+	if route.size() < 2:
+		return route
+
+	var best_i := 0
+	var best_t := 0.0
+	var best_d := INF
+
+	# Finde das nächste Segment + Projektion (exakter Punkt auf dem Segment!)
+	for i in range(route.size() - 1):
+		var a := route[i]
+		var b := route[i + 1]
+		var ab := b - a
+		var ab_len2 := ab.length_squared()
+		if ab_len2 < 0.0001:
+			continue
+
+		var t := ((start_pos - a).dot(ab)) / ab_len2
+		t = clamp(t, 0.0, 1.0)
+		var p := a + ab * t
+		var d := p.distance_squared_to(start_pos)
+
+		if d < best_d:
+			best_d = d
+			best_i = i
+			best_t = t
+
+	# Route neu bauen: exakter Startpunkt + restliche Punkte
+	var out := PackedVector2Array()
+	var a0 := route[best_i]
+	var b0 := route[best_i + 1]
+	var p0 := a0.lerp(b0, best_t)
+
+	out.append(p0)
+	for k in range(best_i + 1, route.size()):
+		out.append(route[k])
+
+	# Sicherheit
+	if out.size() < 2:
+		return route
+
+	return out
+
+func rotate_route_from_nearest_projected(route: PackedVector2Array, start_pos: Vector2) -> PackedVector2Array:
+	if route.size() < 2:
+		return route
+
+	var best_i := 0
+	var best_t := 0.0
+	var best_d := INF
+
+	for i in range(route.size() - 1):
+		var a := route[i]
+		var b := route[i + 1]
+		var ab := b - a
+		var ab_len2 := ab.length_squared()
+		if ab_len2 < 0.0001:
+			continue
+
+		var t := ((start_pos - a).dot(ab)) / ab_len2
+		t = clamp(t, 0.0, 1.0)
+		var p := a + ab * t
+		var d := p.distance_squared_to(start_pos)
+
+		if d < best_d:
+			best_d = d
+			best_i = i
+			best_t = t
+
+	var p0 := route[best_i].lerp(route[best_i + 1], best_t)
+
+	var out := PackedVector2Array()
+	out.append(p0)
+
+	# ab nächstem Punkt bis Ende
+	for k in range(best_i + 1, route.size()):
+		out.append(route[k])
+	# dann Anfang bis zum Segment
+	for k in range(0, best_i + 1):
+		out.append(route[k])
+
+	return out
+
+
+func debug_show_all_trains() -> void:
+	var cam: Camera2D = $Camera2D
+	if cam == null:
+		print("debug_show_all_trains: NO Camera2D")
+		return
+
+	var trains: Array[Node2D] = []
+	for name in ["Train1", "Train2", "Train3", "Train4"]:
+		if has_node(name):
+			trains.append(get_node(name))
+
+	if trains.size() == 0:
+		print("debug_show_all_trains: NO trains found")
+		return
+
+	var min_x := INF
+	var min_y := INF
+	var max_x := -INF
+	var max_y := -INF
+
+	for tr in trains:
+		var p := tr.global_position
+		min_x = min(min_x, p.x)
+		min_y = min(min_y, p.y)
+		max_x = max(max_x, p.x)
+		max_y = max(max_y, p.y)
+
+	var center := Vector2((min_x + max_x) * 0.5, (min_y + max_y) * 0.5)
+	cam.global_position = center
+
+	# FIXED zoom raus, damit man "sicher" was sieht
+	cam.zoom = Vector2(2.5, 2.5)
+
+	print("debug_show_all_trains OK center=", center, " zoom=", cam.zoom)
+	print("train positions:",
+		"t1=", trains[0].global_position if trains.size()>0 else "na",
+		"t2=", trains[1].global_position if trains.size()>1 else "na",
+		"t3=", trains[2].global_position if trains.size()>2 else "na",
+		"t4=", trains[3].global_position if trains.size()>3 else "na"
+	)
+
+
+func debug_draw_train_markers() -> void:
+	print("debug_draw_train_markers() CALLED")
+
+	# alte Marker löschen (falls vorhanden)
+	for c in get_children():
+		if c.name.begins_with("DBG_"):
+			c.queue_free()
+
+	for name in ["Train1","Train2","Train3","Train4"]:
+		if not has_node(name):
+			print("DBG: Missing train node:", name)
+			continue
+
+		var tr := get_node(name) as Node2D
+		print("DBG:", name, "pos=", tr.global_position)
+
+		var dot := Node2D.new()
+		dot.name = "DBG_" + name
+		dot.position = tr.global_position
+		dot.z_index = 99999
+		dot.z_as_relative = false
+
+		# eigener Draw: roter Kreis
+		dot.set_process(false)
+		dot.set_physics_process(false)
+
+		# Trick: CanvasItem draw geht nur in _draw einer Node2D mit Script,
+		# deshalb nutzen wir einen ColorRect als Marker (funktioniert IMMER).
+		var rect := ColorRect.new()
+		rect.color = Color(1,1,1,1)
+		if name == "Train1": rect.color = Color(1,0,0,1)
+		if name == "Train2": rect.color = Color(0,1,0,1)
+		if name == "Train3": rect.color = Color(0,0,1,1)
+		if name == "Train4": rect.color = Color(1,1,0,1)
+		rect.size = Vector2(14, 14)
+		rect.position = Vector2(-7, -7)
+		rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+		dot.add_child(rect)
+		add_child(dot)
+
+	print("DBG markers ADDED")
+
+
+func draw_route_debug(points: PackedVector2Array, col: Color, width := 5.0) -> void:
+	if points.size() < 2:
+		return
+	var line := Line2D.new()
+	line.width = width
+	line.default_color = col
+	line.z_as_relative = false
+	line.z_index = 2000
+	for p in points:
+		line.add_point(p)
+	$OverlayContainer.add_child(line)
+
+func draw_debug_route(points: PackedVector2Array, col: Color = Color(1, 1, 0), width: float = 4.0) -> void:
+	if points.size() < 2:
+		print("draw_debug_route: too few points")
+		return
+
+	var line := Line2D.new()
+	line.width = width
+	line.default_color = col
+	line.antialiased = true
+	line.z_as_relative = false
+	line.z_index = 2000  # über tiles & kvv-lines
+
+	for p in points:
+		line.add_point(p)
+
+	# wichtig: in denselben OverlayContainer wie deine anderen Linien/Dots
+	if has_node("OverlayContainer"):
+		$OverlayContainer.add_child(line)
+	else:
+		add_child(line)
+
+
+# func _sync_path_from_line() -> void:
+# 	if route_line.points.size() < 2:
+# 		push_error("RouteLine hat zu wenige Punkte -> Path kann nicht gebaut werden.")
+# 		return
+
+# 	var curve := Curve2D.new()
+# 	for p in route_line.points:
+# 		curve.add_point(p)
+
+# 	route_path.curve = curve
+
+# func _setup_follows() -> void:
+# 	for f in follows:
+# 		f.loop = true
+# 		f.rotates = true  # Zug richtet sich entlang der Strecke aus (optional)
+
+# 	# Start-Abstände (damit sie nicht übereinander stehen)
+# 	follows[0].progress = 0.0
+# 	follows[1].progress = 300.0
+# 	follows[2].progress = 600.0
+# 	follows[3].progress = 900.0
+
+# func _process(delta: float) -> void:
+# 	# nur fahren, wenn Route gesetzt ist
+# 	if route_path.curve == null or route_path.curve.get_point_count() < 2:
+# 		return
+
+# 	for i in range(follows.size()):
+# 		follows[i].progress += train_speeds[i] * delta
+
+
+
+func point_at_distance(route: PackedVector2Array, dist: float) -> Vector2:
+	if route.size() < 2:
+		return Vector2.ZERO
+
+	var remaining := dist
+	for i in range(route.size() - 1):
+		var a := route[i]
+		var b := route[i + 1]
+		var seg := a.distance_to(b)
+		if seg <= 0.001:
+			continue
+		if remaining <= seg:
+			return a.lerp(b, remaining / seg)
+		remaining -= seg
+
+	return route[route.size() - 1]
+
+
+func points_to_curve(points: PackedVector2Array) -> Curve2D:
+	var curve := Curve2D.new()
+	for p in points:
+		curve.add_point(p)
+	return curve
+
+
+func _get_all_robots() -> Array[Node2D]:
+	var out: Array[Node2D] = []
+	for i in [1,2,3,4]:
+		var r := get_node_or_null("Robots/Robot%dRig/Path/Follow/Robot%d" % [i,i]) as Node2D
+		if r != null:
+			out.append(r)
+	return out
+
+func debug_show_all_robots() -> void:
+	var cam: Camera2D = $Camera2D
+	if cam == null:
+		return
+
+	var robots := _get_all_robots()
+	if robots.size() == 0:
+		print("debug_show_all_robots: none found")
+		return
+
+	var min_x := INF
+	var min_y := INF
+	var max_x := -INF
+	var max_y := -INF
+
+	for r in robots:
+		var p := r.global_position
+		min_x = min(min_x, p.x)
+		min_y = min(min_y, p.y)
+		max_x = max(max_x, p.x)
+		max_y = max(max_y, p.y)
+
+	cam.global_position = Vector2((min_x+max_x)*0.5, (min_y+max_y)*0.5)
+	cam.zoom = Vector2(2.5, 2.5)

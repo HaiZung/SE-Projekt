@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=21 format=3 uid="uid://dc6t68g6ccu8h"]
 
 [ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 [ext_resource type="Script" uid="uid://b3axa7bpmkxfe" path="res://UI/ui.gd" id="1_e707p"]
@@ -9,6 +9,8 @@
 [ext_resource type="Script" uid="uid://osil7ioblbjs" path="res://UI/testanimation.gd" id="6_jqf55"]
 [ext_resource type="PackedScene" uid="uid://cuyci8m3gb3v4" path="res://karte/map.tscn" id="7_byuxr"]
 [ext_resource type="Script" uid="uid://fmcir6aw5052" path="res://UI/http_request.gd" id="8_d050y"]
+[ext_resource type="Script" uid="uid://c71dvg71mkg3p" path="res://UI/StartSimulationButton.gd" id="8_vx7wu"]
+[ext_resource type="Script" uid="uid://bstu3qcy1fsad" path="res://UI/StopSimulationButton.gd" id="9_r2vy3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_window"]
 bg_color = Color(1, 1, 1, 1)
@@ -139,9 +141,9 @@ alignment = 1
 [node name="RedBtn1" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R1
 "
@@ -149,27 +151,27 @@ text = "R1
 [node name="RedBtn2" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R2"
 
 [node name="RedBtn3" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R3"
 
 [node name="RedBtn4" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/hover = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/normal = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/hover = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R4"
 
@@ -191,10 +193,10 @@ script = ExtResource("1_6dd3c")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
 layout_mode = 2
-theme_override_colors/font_hover_color = Color(0.593134, 0.593134, 0.593134, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_hover_color = Color(0.593134, 0.593134, 0.593134, 1)
 theme_override_font_sizes/font_size = 20
 text = "Status
 "
@@ -228,10 +230,10 @@ script = ExtResource("2_dhe1o")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
 layout_mode = 2
-theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "Geplante Route"
 flat = true
@@ -264,10 +266,10 @@ script = ExtResource("3_q0uhn")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
 layout_mode = 2
-theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "Paketliste"
 flat = true
@@ -300,10 +302,10 @@ script = ExtResource("5_f1fl4")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
 layout_mode = 2
-theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "3D Ansicht"
 flat = true
@@ -333,6 +335,27 @@ mesh = SubResource("CapsuleMesh_byuxr")
 libraries = {
 &"": SubResource("AnimationLibrary_qhxh2")
 }
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -133.0
+offset_bottom = 70.0
+grow_horizontal = 0
+
+[node name="Simulation" type="Label" parent="UILayer/VBoxContainer"]
+layout_mode = 2
+
+[node name="StartSimulationButton" type="Button" parent="UILayer/VBoxContainer"]
+layout_mode = 2
+text = "Start Simulation"
+script = ExtResource("8_vx7wu")
+
+[node name="StopSimulationButton" type="Button" parent="UILayer/VBoxContainer"]
+layout_mode = 2
+text = "Stop Simulation"
+script = ExtResource("9_r2vy3")
 
 [node name="MapRoot" parent="." instance=ExtResource("7_byuxr")]
 
