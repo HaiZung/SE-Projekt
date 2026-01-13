@@ -66,6 +66,9 @@ func _ready():
 	header_buttons[0].button_pressed = true
 	_on_robot_selected(0)
 
+	#hide pannel 
+	_on_menu_button_pressed()
+
 	if robot_animation == null:
 		print("UI WARN: robot_animation Node3D not found -> skipping 3D")
 
