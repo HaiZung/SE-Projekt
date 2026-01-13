@@ -12,7 +12,7 @@ extends Control
 @onready var sec_status   := $UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded
 @onready var sec_route    := $UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2
 @onready var sec_packages := $UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3
-@onready var robot_animation := $UILayer/MainLayout/MainLayout/WindowPanel/ScrollArea/ContentList/Heading1_Expanded4/VBoxContainer/SubViewportContainer/SubViewport/Node3D
+@onready var robot_animation := get_node_or_null("UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/VBoxContainer/SubViewportContainer/SubViewport/Node3D")
 # 3D lassen wir erstmal aus, kommt danach
 
 @onready var window_panel := $UILayer/MainLayout/WindowPanel
@@ -22,6 +22,7 @@ extends Control
 # --- Map Root ---
 @export var map_root_path: NodePath
 @onready var map_root: Node = get_node_or_null(map_root_path)
+
 
 
 var selected_robot_id := 0
@@ -64,6 +65,10 @@ func _ready():
 	# Startzustand
 	header_buttons[0].button_pressed = true
 	_on_robot_selected(0)
+
+	if robot_animation == null:
+		print("UI WARN: robot_animation Node3D not found -> skipping 3D")
+
 	
 
 func _on_robot_selected(id: int) -> void:
@@ -93,9 +98,10 @@ func _on_robot_selected(id: int) -> void:
 	#else:
 	#	sec_packages.set_lines(r["packages"])
 
-	# Wenn R1 gewählt wird (id == 0), Kamera zum Roboter
-	if id == 0 and map_root and map_root.has_method("focus_on_train"):
-		map_root.call("focus_on_train", true)
+	# Kamera zum gewählten Roboter bewegen
+	var day_sim := map_root.get_node_or_null("DaySimulation")
+	if day_sim and day_sim.has_method("focus_camera_on_robot"):
+		day_sim.focus_camera_on_robot(id + 1)
 
 
 

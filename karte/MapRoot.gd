@@ -5,6 +5,7 @@ const TILE_SIZE := 256
 var zoom: int = 14
 @onready var route_line: Line2D = $RouteLine
 
+var stop_world_by_name: Dictionary = {}
 
 func _ready() -> void:
 	# Zentrum: Karlsruhe
@@ -12,6 +13,7 @@ func _ready() -> void:
 	var center_lat := 49.0069
 	var center_lon := 8.4037
 	$Camera2D.enabled = true
+	$Camera2D.make_current()
 
 
 	# Weltkoordinaten des Zentrums (selbe Funktion wie für Linien)
@@ -39,14 +41,7 @@ func _ready() -> void:
 	# TEST-ROUTE zeichnen
 	# -------------------------------
 
-	var test_route_latlon := [
-		Vector2(49.0069, 8.4037),  # Zentrum
-		Vector2(49.0105, 8.4150),
-		Vector2(49.0150, 8.4300),
-		Vector2(49.0200, 8.4450)
-	]
-
-	set_route_from_geojson("res://karte/KVVLinesGeoJSON_v2.json", "4")
+	# set_route_from_geojson("res://karte/KVVLinesGeoJSON_v2.json", "4")
 
 
 
@@ -141,6 +136,71 @@ func draw_route_from_latlon(latlon_points: Array) -> void:
 		var world_pos := latlon_to_world(lat, lon, zoom)
 		route_line.add_point(world_pos)
 
+		#	# Path2D aus der Line2D erzeugen
+		# _sync_path_from_line()
+
+		# # Follows initialisieren
+		# _setup_follows()
+
+
+# -------------------------------
+# GeoJSON Linien extrahieren
+# -------------------------------
+
+func get_route_points_from_geojson(path: String, line_id: String) -> PackedVector2Array:
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		push_error("GeoJSON nicht gefunden: %s" % path)
+		return PackedVector2Array()
+
+	var json_text: String = file.get_as_text()
+	file.close()
+
+	var data_v: Variant = JSON.parse_string(json_text)
+	if not (data_v is Dictionary):
+		return PackedVector2Array()
+
+	var data: Dictionary = data_v
+	if not data.has("features"):
+		return PackedVector2Array()
+
+	var features_v: Variant = data["features"]
+	if not (features_v is Array):
+		return PackedVector2Array()
+
+	var features: Array = features_v
+	var best_points: PackedVector2Array = PackedVector2Array()
+	var best_len: float = 0.0
+
+	for f_v in features:
+		if not (f_v is Dictionary):
+			continue
+		var f: Dictionary = f_v
+		var props_any: Variant = f.get("properties", {})
+		var props: Dictionary = props_any if props_any is Dictionary else {}
+
+		var candidate_raw: Variant = props.get("line", props.get("name", props.get("id", "")))
+		var candidate: String = str(candidate_raw).strip_edges()
+
+		if candidate == "" or candidate.find(line_id) == -1:
+			continue
+
+		var geom_any: Variant = f.get("geometry", null)
+		if not (geom_any is Dictionary):
+			continue
+		var geom: Dictionary = geom_any
+
+		var pts: PackedVector2Array = _geometry_to_points_longest_part(geom)
+		var L: float = _polyline_length(pts)
+		if pts.size() >= 2 and L > best_len:
+			best_len = L
+			best_points = pts
+
+	return best_points
+
+# -------------------------------
+
+
 func set_route_from_geojson(path: String, line_id: String) -> void:
 	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
 	if file == null:
@@ -216,10 +276,7 @@ func set_route_from_geojson(path: String, line_id: String) -> void:
 	for p in best_points:
 		route_line.add_point(p)
 
-	# Zug starten
-	$Train.set_route_from_line(route_line)
 
-	print("Route gesetzt aus GeoJSON:", line_id, " Punkte:", best_points.size(), " Länge:", best_len)
 
 #Hilfsfunktionen für Simulation
 func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
@@ -337,7 +394,7 @@ func load_geojson_lines(path: String) -> void:
 	var features: Array = features_v
 	print("GeoJSON features: ", features.size())
 
-	var limit: int = mini(200, features.size())
+	var limit: int = min(200, features.size())
 
 	var added: int = 0
 	var skipped: int = 0
@@ -577,6 +634,11 @@ func load_stops_from_kvv_json(path: String) -> void:
 
 		var world_pos: Vector2 = latlon_to_world(lat, lon, zoom)
 
+		var name: String = str(s.get("name", "")).strip_edges()
+		if name != "":
+			stop_world_by_name[name] = world_pos
+
+
 		var dot := StopDot.new()
 		dot.position = world_pos
 		dot.set_style(4.5, Color(1, 0, 0, 0.95)) # gut sichtbar
@@ -587,8 +649,6 @@ func load_stops_from_kvv_json(path: String) -> void:
 		added += 1
 
 	print("Stops added:", added)
-
-
 
 
 func _add_stop_from_coord(coord_v: Variant) -> void:
@@ -610,24 +670,12 @@ func _add_stop_from_coord(coord_v: Variant) -> void:
 
 	# Damit es über den Tiles & Linien liegt:
 	$OverlayContainer.add_child(dot)
+	
+# -------------------------------
 
 
-
-# Damit der Roboter im UI fokussiert werden kann
-
-func focus_on_train(smooth: bool = true) -> void:
-	var cam: Camera2D = $Camera2D
-	var train: Node2D = $Train
-	if cam == null or train == null:
-		return
-
-	var target := train.global_position
-
-	if not smooth:
-		cam.global_position = target
-		return
-
-	var t := create_tween()
-	t.set_trans(Tween.TRANS_QUAD)
-	t.set_ease(Tween.EASE_OUT)
-	t.tween_property(cam, "global_position", target, 0.35)
+func points_to_curve(points: PackedVector2Array) -> Curve2D:
+	var curve := Curve2D.new()
+	for p in points:
+		curve.add_point(p)
+	return curve

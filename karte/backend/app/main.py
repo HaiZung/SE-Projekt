@@ -94,3 +94,29 @@ async def update_robotstate(data: dict = Body(...)):
         "updated_roboter_id": rid, 
         "new_status": new_status
     }
+
+# --- PlannedRoutes Endpoints ---
+# Simulation
+
+@app.get("/plannedroutes")
+async def get_plannedroutes():
+    docs = await db.PlannedRoutes.find({}).to_list(length=200)
+    return [serialize(d) for d in docs]
+
+@app.post("/plannedroutes")
+async def add_plannedroute(data: dict = Body(...)):
+    await db.PlannedRoutes.insert_one(data)
+    return {"status": "success", "data": serialize(data)}
+
+@app.put("/plannedroutes")
+async def upsert_plannedroute(data: dict = Body(...)):
+    rid = data.get("roboter_id")
+    if rid is None:
+        return {"status": "error", "message": "roboter_id is required"}
+
+    result = await db.PlannedRoutes.update_one(
+        {"roboter_id": rid},
+        {"$set": data},
+        upsert=True
+    )
+    return {"status": "success", "roboter_id": rid}
