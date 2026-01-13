@@ -37,26 +37,10 @@ func _ready() -> void:
 	load_geojson_lines("res://karte/KVVLinesGeoJSON_v2.json")
 	load_stops_from_kvv_json("res://karte/KVV_Haltestellen_v2.json")
 
-	# -------------------------------
-	# TEST-ROUTE zeichnen
-	# -------------------------------
-
-	# set_route_from_geojson("res://karte/KVVLinesGeoJSON_v2.json", "4")
-
-
-
-
-
-	
-
-
-
-
 # -------------------------------
 # TILE-Berechnungen & Laden
 # -------------------------------
 
-# Nur noch int-Tileindex, abgeleitet aus derselben Formel
 func latlon_to_tile(lat: float, lon: float, z: int) -> Vector2i:
 	var world := latlon_to_world(lat, lon, z) / TILE_SIZE
 	return Vector2i(int(world.x), int(world.y))
@@ -82,7 +66,7 @@ func load_tile(x: int, y: int) -> void:
 
 		var spr := Sprite2D.new()
 		spr.texture = tex
-		spr.centered = false            # ✅ WICHTIG
+		spr.centered = false           
 		spr.position = Vector2(x * TILE_SIZE, y * TILE_SIZE)
 		$TileContainer.add_child(spr)
 
@@ -90,7 +74,6 @@ func load_tile(x: int, y: int) -> void:
 	)
 
 	http.request(url)
-
 
 
 # -------------------------------
@@ -115,7 +98,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # lat/lon -> Weltkoordinaten
 # -------------------------------
 
-# WGS84 -> "Slippy Map"-Pixelkoordinaten in deiner Welt
+# WGS84 -> Pixelkoordinaten
 func latlon_to_world(lat: float, lon: float, z: int) -> Vector2:
 	var lat_rad := deg_to_rad(lat)
 	var n := pow(2.0, z)
@@ -135,13 +118,6 @@ func draw_route_from_latlon(latlon_points: Array) -> void:
 		var lon: float = ll.y
 		var world_pos := latlon_to_world(lat, lon, zoom)
 		route_line.add_point(world_pos)
-
-		#	# Path2D aus der Line2D erzeugen
-		# _sync_path_from_line()
-
-		# # Follows initialisieren
-		# _setup_follows()
-
 
 # -------------------------------
 # GeoJSON Linien extrahieren
@@ -197,8 +173,6 @@ func get_route_points_from_geojson(path: String, line_id: String) -> PackedVecto
 			best_points = pts
 
 	return best_points
-
-# -------------------------------
 
 
 func set_route_from_geojson(path: String, line_id: String) -> void:
@@ -276,87 +250,6 @@ func set_route_from_geojson(path: String, line_id: String) -> void:
 	for p in best_points:
 		route_line.add_point(p)
 
-
-
-#Hilfsfunktionen für Simulation
-func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
-	var t_any: Variant = geom.get("type", "")
-	var t: String = str(t_any).strip_edges()
-
-	if t == "LineString":
-		var coords_any: Variant = geom.get("coordinates", null)
-		return _coords_to_world_points(coords_any)
-
-	if t == "MultiLineString":
-		var best: PackedVector2Array = PackedVector2Array()
-		var best_len: float = 0.0
-		var parts_any: Variant = geom.get("coordinates", null)
-		if parts_any is Array:
-			var parts: Array = parts_any
-			for part in parts:
-				var pts: PackedVector2Array = _coords_to_world_points(part)
-				var L: float = _polyline_length(pts)
-				if pts.size() >= 2 and L > best_len:
-					best_len = L
-					best = pts
-		return best
-
-	if t == "GeometryCollection":
-		var best_gc: PackedVector2Array = PackedVector2Array()
-		var best_len_gc: float = 0.0
-		var geoms_any: Variant = geom.get("geometries", null)
-		if geoms_any is Array:
-			var geoms: Array = geoms_any
-			for g in geoms:
-				if g is Dictionary:
-					var pts_gc: PackedVector2Array = _geometry_to_points_longest_part(g)
-					var L_gc: float = _polyline_length(pts_gc)
-					if pts_gc.size() >= 2 and L_gc > best_len_gc:
-						best_len_gc = L_gc
-						best_gc = pts_gc
-		return best_gc
-
-	return PackedVector2Array()
-
-func _coords_to_world_points(coords_v: Variant) -> PackedVector2Array:
-	var pts: PackedVector2Array = PackedVector2Array()
-	if not (coords_v is Array):
-		return pts
-
-	var coords: Array = coords_v
-	for c in coords:
-		if not (c is Array) or c.size() < 2:
-			continue
-
-		var lon: float = float(c[0])
-		var lat: float = float(c[1])
-		var world_pos: Vector2 = latlon_to_world(lat, lon, zoom)
-		pts.append(world_pos)
-
-	return pts
-
-func _polyline_length(pts: PackedVector2Array) -> float:
-	var L: float = 0.0
-	for i in range(pts.size() - 1):
-		L += pts[i].distance_to(pts[i + 1])
-	return L
-
-func _print_geojson_property_keys(features: Array) -> void:
-	print("DEBUG: Beispiel-Properties aus GeoJSON (erste max. 5 Features):")
-	var limit: int = min(5, features.size())
-	for i in range(limit):
-		var f_v: Variant = features[i]
-		if not (f_v is Dictionary):
-			continue
-		var f: Dictionary = f_v
-		var props_any: Variant = f.get("properties", {})
-		if not (props_any is Dictionary):
-			continue
-		var props: Dictionary = props_any
-		print("Feature ", i, " keys: ", props.keys())
-
-
-#Hilfsfunktionen ende
 
 # -------------------------------
 # KVV GeoJSON Linien laden 
@@ -450,7 +343,6 @@ func load_geojson_lines(path: String) -> void:
 				continue
 
 		elif t == "GeometryCollection":
-			# nur zählen im Debug (noch keine Rekursion)
 			skipped += 1
 			continue
 		else:
@@ -641,7 +533,7 @@ func load_stops_from_kvv_json(path: String) -> void:
 
 		var dot := StopDot.new()
 		dot.position = world_pos
-		dot.set_style(4.5, Color(1, 0, 0, 0.95)) # gut sichtbar
+		dot.set_style(4.5, Color(1, 0, 0, 0.95)) 
 		dot.z_index = 2000
 		dot.z_as_relative = false
 
