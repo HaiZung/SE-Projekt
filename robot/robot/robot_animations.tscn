@@ -3557,6 +3557,7 @@ loop_mode = 1
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_7iy4n"]
 graph_offset = Vector2(447.608, 199.973)
+nodes/output/position = Vector2(2200, 760)
 nodes/Blend1/node = SubResource("AnimationNodeBlend2_wbyvi")
 nodes/Blend1/position = Vector2(1520, 680)
 nodes/Blend2/node = SubResource("AnimationNodeBlend2_20w36")
@@ -3567,7 +3568,6 @@ nodes/Blend3/node = SubResource("AnimationNodeBlend2_8b6ft")
 nodes/Blend3/position = Vector2(1860, 760)
 nodes/body/node = SubResource("AnimationNodeAnimation_ykput")
 nodes/body/position = Vector2(1820, 1020)
-nodes/output/position = Vector2(2200, 760)
 nodes/wheel_BL/node = SubResource("AnimationNodeAnimation_fp0l7")
 nodes/wheel_BL/position = Vector2(1160, 600)
 nodes/wheel_BR/node = SubResource("AnimationNodeAnimation_bhcrc")
@@ -3576,7 +3576,7 @@ nodes/wheel_FL/node = SubResource("AnimationNodeAnimation_1jdkr")
 nodes/wheel_FL/position = Vector2(1320, 860)
 nodes/wheel_FR/node = SubResource("AnimationNodeAnimation_vkg2t")
 nodes/wheel_FR/position = Vector2(1300, 600)
-node_connections = [&"Blend1", 0, &"wheel_FR", &"Blend1", 1, &"wheel_BL", &"Blend2", 0, &"wheel_FL", &"Blend2", 1, &"wheel_BR", &"Blend2 2", 0, &"Blend3", &"Blend2 2", 1, &"body", &"Blend3", 0, &"Blend1", &"Blend3", 1, &"Blend2", &"output", 0, &"Blend2 2"]
+node_connections = [&"output", 0, &"Blend2 2", &"Blend1", 0, &"wheel_FR", &"Blend1", 1, &"wheel_BL", &"Blend2", 0, &"wheel_FL", &"Blend2", 1, &"wheel_BR", &"Blend2 2", 0, &"Blend3", &"Blend2 2", 1, &"body", &"Blend3", 0, &"Blend1", &"Blend3", 1, &"Blend2"]
 
 [node name="robot_animations" instance=ExtResource("1_e7yvf")]
 script = ExtResource("2_wbyvi")
@@ -3585,7 +3585,7 @@ script = ExtResource("2_wbyvi")
 environment = SubResource("Environment_wla17")
 
 [node name="body" parent="Movement_master" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.07523e-05, 0.00527967, 7.86812e-06)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2861353e-05, 0.0014720841, 0.00021403373)
 
 [node name="Face-Area" parent="Movement_master/body" index="2"]
 transform = Transform3D(-6.1196e-09, -0.14, 0, 0.14, -6.1196e-09, 0, 0, 0, 0.01, 0, 0.639695, 0.533872)
@@ -3630,52 +3630,52 @@ surface_material_override/0 = SubResource("ShaderMaterial_7iy4n")
 surface_material_override/0 = SubResource("ShaderMaterial_mx5tp")
 
 [node name="door_left_top" parent="Movement_master/body/top" index="3"]
-transform = Transform3D(0.999534, -0.0305317, 1.60201e-07, 0.0305317, 0.999534, 3.62668e-07, -1.71199e-07, -3.57608e-07, 1, 0.646471, 0.611204, -0.266685)
+transform = Transform3D(1.0000002, 0, 0, 0, 1.0000002, 0, 0, 0, 1, 0.646471, 0.611204, -0.266685)
 
 [node name="door_right_bottom" parent="Movement_master/body/top" index="4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.645, -0.0320709, 0.51)
 
 [node name="empty_door_left_bottom" parent="Movement_master/body/top" index="8"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_door_left_middle_bottom" parent="Movement_master/body/top" index="9"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_door_left_middle_top" parent="Movement_master/body/top" index="10"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_door_left_top" parent="Movement_master/body/top" index="11"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_door_right_bottom" parent="Movement_master/body/top" index="12"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_door_right_middle_bottom" parent="Movement_master/body/top" index="13"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_door_right_middle_top" parent="Movement_master/body/top" index="14"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_door_right_top" parent="Movement_master/body/top" index="15"]
-transform = Transform3D(2.22222, 0, 0, 0, -9.71363e-08, 2.22222, 0, -2.22222, -9.71363e-08, 0.213251, 0.192422, 1.47632)
+transform = Transform3D(2.22222, 0, 0, 0, -9.713632e-08, 2.22222, 0, -2.22222, -9.713632e-08, 0.213251, 0.192422, 1.47632)
 
 [node name="empty_body" parent="Movement_master" index="1"]
 transform = Transform3D(0.0128861, 0, 0, 0, 0.0128861, 0, 0, 0, 0.0128861, -2.07523e-05, 0.00527967, 7.86812e-06)
 
 [node name="empty_wheels" parent="Movement_master" index="2"]
-transform = Transform3D(0.00325285, -0.00777776, 0.000106058, 0.00542014, 0.00234887, 0.00601587, -0.00557914, -0.0022528, 0.00590626, 2.8903e-05, 0.00257021, 0.00269812)
+transform = Transform3D(0.0032528485, -0.0077777603, 0.0001060578, 0.0054201423, 0.0023488703, 0.006015868, -0.005579139, -0.0022527962, 0.005906261, 2.8903e-05, 0.00257021, 0.0026981202)
 
 [node name="wheel_BL" parent="Movement_master" index="5"]
-transform = Transform3D(-1, 0, 0, 0, -0.363706, -0.931514, 0, 0.931514, -0.363706, 0.20701, 0.00837544, -0.359391)
+transform = Transform3D(-1, -1.497905e-08, -2.1179106e-08, 2.5178455e-08, -0.7569397, -0.6534851, 6.2427183e-09, 0.6534851, -0.7569397, 0.20701, 0.007970863, -0.3601613)
 
 [node name="wheel_BR" parent="Movement_master" index="6"]
-transform = Transform3D(-1, -7.93732e-08, 5.49181e-08, 2.22885e-08, 0.363706, 0.931514, -9.39113e-08, 0.931514, -0.363706, -0.206929, 0.00837544, -0.359391)
+transform = Transform3D(-1, -0.00011614131, 0.00018309636, 0.00012799507, 0.36541185, 0.9308462, -0.00017501519, 0.9308462, -0.36541185, -0.206929, 0.008367348, -0.3594064)
 
 [node name="wheel_FL" parent="Movement_master" index="7"]
-transform = Transform3D(1, 0, 0, 0, 0.363706, 0.931514, 0, -0.931514, 0.363706, 0.20701, 0.00837544, 0.370622)
+transform = Transform3D(1, 0, 0, 0, 0.9723902, 0.23336194, 0, -0.23336194, 0.9723902, 0.20701, 0.0075743776, 0.36909688)
 
 [node name="wheel_FR" parent="Movement_master" index="8"]
-transform = Transform3D(1, 0, 0, 0, 0.363706, 0.931514, 0, -0.931514, 0.363706, -0.206929, 0.00837544, 0.370622)
+transform = Transform3D(1, 0, 0, 0, 0.75693965, 0.6534852, 0, -0.6534852, 0.75693965, -0.206929, 0.007970863, 0.36985174)
 
 [node name="AnimationPlayerAll" type="AnimationPlayer" parent="." index="3"]
 libraries = {
@@ -3691,5 +3691,6 @@ parameters/Blend2/blend_amount = 0.01
 parameters/Blend3/blend_amount = 0.5
 
 [node name="Camera3D" type="Camera3D" parent="." index="5"]
-transform = Transform3D(0.642788, -0.198267, 0.739942, 0, 0.965926, 0.258819, -0.766044, -0.166366, 0.620885, 2.5, 2, 2.5)
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 0.99999994, 0, -0.70710677, 0, 0.70710677, 4, 1.5, 4)
+current = true
 fov = 65.8
