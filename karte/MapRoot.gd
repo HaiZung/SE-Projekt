@@ -571,3 +571,71 @@ func points_to_curve(points: PackedVector2Array) -> Curve2D:
 	for p in points:
 		curve.add_point(p)
 	return curve
+
+
+#Hilfsfunktionen für Simulation---------------------
+
+func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
+	var t_any: Variant = geom.get("type", "")
+	var t: String = str(t_any).strip_edges()
+
+	if t == "LineString":
+		var coords_any: Variant = geom.get("coordinates", null)
+		return _coords_to_world_points(coords_any)
+
+	if t == "MultiLineString":
+		var best: PackedVector2Array = PackedVector2Array()
+		var best_len: float = 0.0
+		var parts_any: Variant = geom.get("coordinates", null)
+		if parts_any is Array:
+			var parts: Array = parts_any
+			for part in parts:
+				var pts: PackedVector2Array = _coords_to_world_points(part)
+				var L: float = _polyline_length(pts)
+				if pts.size() >= 2 and L > best_len:
+					best_len = L
+					best = pts
+		return best
+
+	if t == "GeometryCollection":
+		var best_gc: PackedVector2Array = PackedVector2Array()
+		var best_len_gc: float = 0.0
+		var geoms_any: Variant = geom.get("geometries", null)
+		if geoms_any is Array:
+			var geoms: Array = geoms_any
+			for g in geoms:
+				if g is Dictionary:
+					var pts_gc: PackedVector2Array = _geometry_to_points_longest_part(g)
+					var L_gc: float = _polyline_length(pts_gc)
+					if pts_gc.size() >= 2 and L_gc > best_len_gc:
+						best_len_gc = L_gc
+						best_gc = pts_gc
+		return best_gc
+
+	return PackedVector2Array()
+
+	func _polyline_length(pts: PackedVector2Array) -> float:
+	var L: float = 0.0
+	for i in range(pts.size() - 1):
+		L += pts[i].distance_to(pts[i + 1])
+	return L
+
+	func _coords_to_world_points(coords_v: Variant) -> PackedVector2Array:
+	var pts: PackedVector2Array = PackedVector2Array()
+	if not (coords_v is Array):
+		return pts
+
+	var coords: Array = coords_v
+	for c in coords:
+		if not (c is Array) or c.size() < 2:
+			continue
+
+		var lon: float = float(c[0])
+		var lat: float = float(c[1])
+		var world_pos: Vector2 = latlon_to_world(lat, lon, zoom)
+		pts.append(world_pos)
+
+	return pts
+
+
+	
