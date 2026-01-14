@@ -61,10 +61,10 @@ async def init_db():
     robotstates_collection = db["Robotstates"]
     if await robotstates_collection.count_documents({}) == 0:
         await robotstates_collection.insert_many([
-            {"roboter_id": 1, "status": "aktiv"},
-            {"roboter_id": 2, "status": "inaktiv"},
-            {"roboter_id": 3, "status": "wartung"},
-            {"roboter_id": 4, "status": "charging"}
+            {"roboter_id": 1, "status": "aktiv", "batterie": 78},    # 78%
+            {"roboter_id": 2, "status": "inaktiv", "batterie": 45}, # 45%
+            {"roboter_id": 3, "status": "wartung", "batterie": 90},  # 90%
+            {"roboter_id": 4, "status": "charging", "batterie": 12} # 12%
         ])
 
     print("Database initialized (only missing collections were seeded).")

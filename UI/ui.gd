@@ -28,35 +28,6 @@ extends Control
 var selected_robot_id := 0
 var panel_open := true
 
-
-# Mock-Daten (später Backend)
-var robots := [
-	{
-		"name": "Roboter 1",
-		"status": ["Status: Fährt", "Batterie: 78%", "Mode: Auto"],
-		"route": ["Depot", "Haltestelle A", "Haltestelle B"],
-		"packages": ["Paket 123", "Paket 456"]
-	},
-	{
-		"name": "Roboter 2",
-		"status": ["Status: Belädt", "Batterie: 55%", "Mode: Auto"],
-		"route": ["Depot"],
-		"packages": ["Paket 789"]
-	},
-	{
-		"name": "Roboter 3",
-		"status": ["Status: Wartung", "Batterie: 100%", "Mode: Manual"],
-		"route": [],
-		"packages": []
-	},
-	{
-		"name": "Roboter 4",
-		"status": ["Status: Störung", "Batterie: 12%", "Mode: Auto"],
-		"route": ["Haltestelle C"],
-		"packages": ["Paket 999", "Paket 111"]
-	}
-]
-
 func _ready():
 	# Buttons verbinden
 	for i in range(header_buttons.size()):
@@ -82,25 +53,13 @@ func _on_robot_selected(id: int) -> void:
 			b.button_pressed=false
 		else: 
 			b.button_pressed=true
-
-	var r = robots[id]
-
+			
 	# Status
-	#sec_status.set_lines(r["status"])
 	sec_status.set_lines(await api.get_status_for_robot(id +1))
 	# Route
-	if r["route"].is_empty():
-		sec_route.set_lines(["Keine Route"])
-	else:
-		sec_route.set_lines(r["route"])
-
+	sec_route.set_lines(await api.get_route_for_robot(id +1))
 	# Pakete
 	sec_packages.set_lines(await api.get_packages_for_robot(id +1))
-	#if r["packages"].is_empty():
-	#	sec_packages.set_lines(["Keine Pakete"])
-	#else:
-	#	sec_packages.set_lines(r["packages"])
-
 	# Kamera zum gewählten Roboter bewegen
 	var day_sim := map_root.get_node_or_null("DaySimulation")
 	if day_sim and day_sim.has_method("focus_camera_on_robot"):

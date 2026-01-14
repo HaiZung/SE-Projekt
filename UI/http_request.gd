@@ -7,7 +7,7 @@ extends HTTPRequest
 @export var path_robot_states := "/robotstates"
 @export var path_stations := "/stations"
 @export var path_train_id := "/trainid"
-
+@export var path_robot_route := "/plannedroutes"
 
 func _ready():
 	#print(await request_api_health())
@@ -66,8 +66,24 @@ func request_stations() -> String:
 func request_train_id() -> String:
 	return await request_http(path_train_id)
 
+func request_robot_route() -> String:
+	return await request_http(path_robot_route)
 
 
+func get_route_for_robot(robotID: int):
+	var data = JSON.parse_string(await request_robot_route())
+	if data == null:
+		push_error("Invalid JSON")
+		return [""]
+
+	for robot in data:
+		if robot.has("roboter_id") and robot["roboter_id"] == robotID:
+			if robot.has("note"):
+				return [robot["note"]]
+			else:
+				return ["Keine Route gefunden"]
+
+	return ["Robot Route not found"]
 
 
 func get_status_for_robot(robotID: int):
@@ -78,9 +94,9 @@ func get_status_for_robot(robotID: int):
 
 	for robot in data:
 		if robot["roboter_id"] == robotID:
-			return [robot["status"]]
+			return ["Status: %s" % robot["status"], "Batterie: %d%%" % robot["batterie"]]
 
-	return ["Robot ID not fourd"]  # not found
+	return ["Robot ID not found"]
 
 
 

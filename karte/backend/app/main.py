@@ -1,8 +1,16 @@
 from fastapi import FastAPI, Body
+import asyncio
 from db import db, init_db
 from typing import Dict, Any
 
 app = FastAPI(title="Karte Backend")
+
+DEFAULT_BATTERIES = {
+    1: 78,
+    2: 45,
+    3: 90,
+    4: 12
+}
 
 @app.on_event("startup")
 async def startup_event():
@@ -70,29 +78,75 @@ async def add_trainid(data: dict = Body(...)):
     await db.TrainID.insert_one(data)
     return {"status": "success", "data": serialize(data)}
 
+# --- Batterie Loop ---
+async def battery_drain_loop():
+    robotstates_collection = db["Robotstates"]
+    while True:
+        async for robot in robotstates_collection.find({}):
+            rid = robot["roboter_id"]
+            status = robot.get("status", "")
+            batterie = robot.get("batterie", 0)
+
+            if status.lower() == "charging":
+                batterie = min(batterie + 1, 100)
+            else:
+                batterie = max(batterie - 1, 0)
+
+            await robotstates_collection.update_one(
+                {"roboter_id": rid},
+                {"$set": {"batterie": batterie}}
+            )
+
+        await asyncio.sleep(5)
+
+# --- Reset Batteries on Startup ---
+async def reset_batteries():
+    for rid, batt in DEFAULT_BATTERIES.items():
+        await db.Robotstates.update_one(
+            {"roboter_id": rid},
+            {"$set": {"batterie": batt}}
+        )
+
+# --- Startup Event ---
+@app.on_event("startup")
+async def startup_event():
+    await init_db()  # Reset der Roboterstatus + Batterie
+    await reset_batteries()
+    asyncio.create_task(battery_drain_loop())  # startet Batterie-Update
+
 
 @app.put("/robotstates")
 async def update_robotstate(data: dict = Body(...)):
-    # Extract the custom ID and the new status from the payload
     rid = data.get("roboter_id")
     new_status = data.get("status")
+    new_battery = data.get("batterie")  # neu hinzugefügt
     
     if rid is None:
         return {"status": "error", "message": "roboter_id is required"}
 
-    # Update the document where roboter_id matches
+    # Build the update dict
+    update_dict = {}
+    if new_status is not None:
+        update_dict["status"] = new_status
+    if new_battery is not None:
+        update_dict["batterie"] = new_battery
+
+    if not update_dict:
+        return {"status": "error", "message": "No valid fields to update"}
+
+    # Update the document
     result = await db.Robotstates.update_one(
-        {"roboter_id": rid}, # Filter
-        {"$set": {"status": new_status}} # Update operation
+        {"roboter_id": rid},
+        {"$set": update_dict}
     )
 
     if result.matched_count == 0:
         return {"status": "error", "message": f"No robot found with roboter_id {rid}"}
 
     return {
-        "status": "success", 
-        "updated_roboter_id": rid, 
-        "new_status": new_status
+        "status": "success",
+        "updated_roboter_id": rid,
+        "updated_fields": update_dict
     }
 
 # --- PlannedRoutes Endpoints ---
