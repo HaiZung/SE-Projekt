@@ -614,13 +614,13 @@ func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
 
 	return PackedVector2Array()
 
-	func _polyline_length(pts: PackedVector2Array) -> float:
+func _polyline_length(pts: PackedVector2Array) -> float:
 	var L: float = 0.0
 	for i in range(pts.size() - 1):
 		L += pts[i].distance_to(pts[i + 1])
 	return L
 
-	func _coords_to_world_points(coords_v: Variant) -> PackedVector2Array:
+func _coords_to_world_points(coords_v: Variant) -> PackedVector2Array:
 	var pts: PackedVector2Array = PackedVector2Array()
 	if not (coords_v is Array):
 		return pts
@@ -637,7 +637,7 @@ func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
 
 	return pts
 
-	func _print_geojson_property_keys(features: Array) -> void:
+func _print_geojson_property_keys(features: Array) -> void:
 	print("DEBUG: Beispiel-Properties aus GeoJSON (erste max. 5 Features):")
 	var limit: int = min(5, features.size())
 	for i in range(limit):
@@ -650,5 +650,3 @@ func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
 			continue
 		var props: Dictionary = props_any
 		print("Feature ", i, " keys: ", props.keys())
-
-
