@@ -651,10 +651,10 @@ func stop_simulation() -> void:
 	set_process(false)
 
 	# optional UI/backend status:
-	_set_state(1, "paused")
-	_set_state(2, "paused")
-	_set_state(3, "paused")
-	_set_state(4, "paused")
+	await _set_state(1, "paused")
+	await _set_state(2, "paused")
+	await _set_state(3, "paused")
+	await _set_state(4, "paused")
 
 	
 func reset_simulation() -> void:
@@ -729,10 +729,10 @@ func reset_simulation() -> void:
 
 	# 6) Zustand zurücksetzen
 	initialized = true  # wichtig: wir HABEN ja wieder Curves gesetzt
-	_set_state(1, "ready")
-	_set_state(2, "ready")
-	_set_state(3, "ready")
-	_set_state(4, "ready")
+	await _set_state(1, "ready")
+	await _set_state(2, "ready")
+	await _set_state(3, "ready")
+	await _set_state(4, "ready")
 
 	print("RESET done. Robots snapped to start.")
 
