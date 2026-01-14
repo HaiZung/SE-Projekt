@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dc6t68g6ccu8h"]
+[gd_scene load_steps=23 format=3 uid="uid://dc6t68g6ccu8h"]
 
 [ext_resource type="Script" uid="uid://cycdwrcnga6so" path="res://UI/heading_1_expanded.gd" id="1_6dd3c"]
 [ext_resource type="Script" uid="uid://b3axa7bpmkxfe" path="res://UI/ui.gd" id="1_e707p"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://brhvj78rfw06i" path="res://UI/heading_1_expanded_4.gd" id="5_f1fl4"]
 [ext_resource type="Script" uid="uid://osil7ioblbjs" path="res://UI/testanimation.gd" id="6_jqf55"]
 [ext_resource type="PackedScene" uid="uid://cuyci8m3gb3v4" path="res://karte/map.tscn" id="7_byuxr"]
+[ext_resource type="PackedScene" uid="uid://dibx3sutk8sb6" path="res://robot/robot/robot_animations.tscn" id="8_017wa"]
 [ext_resource type="Script" uid="uid://fmcir6aw5052" path="res://UI/http_request.gd" id="8_d050y"]
 [ext_resource type="Script" uid="uid://c71dvg71mkg3p" path="res://UI/StartSimulationButton.gd" id="8_vx7wu"]
 [ext_resource type="Script" uid="uid://bstu3qcy1fsad" path="res://UI/StopSimulationButton.gd" id="9_r2vy3"]
@@ -330,12 +331,15 @@ script = ExtResource("6_jqf55")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+visible = false
 mesh = SubResource("CapsuleMesh_byuxr")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
 libraries = {
 &"": SubResource("AnimationLibrary_qhxh2")
 }
+
+[node name="robot_animations" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport" instance=ExtResource("8_017wa")]
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UILayer"]
 anchors_preset = 1
