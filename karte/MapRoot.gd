@@ -637,5 +637,18 @@ func _geometry_to_points_longest_part(geom: Dictionary) -> PackedVector2Array:
 
 	return pts
 
+	func _print_geojson_property_keys(features: Array) -> void:
+	print("DEBUG: Beispiel-Properties aus GeoJSON (erste max. 5 Features):")
+	var limit: int = min(5, features.size())
+	for i in range(limit):
+		var f_v: Variant = features[i]
+		if not (f_v is Dictionary):
+			continue
+		var f: Dictionary = f_v
+		var props_any: Variant = f.get("properties", {})
+		if not (props_any is Dictionary):
+			continue
+		var props: Dictionary = props_any
+		print("Feature ", i, " keys: ", props.keys())
 
-	
+
