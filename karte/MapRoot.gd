@@ -2,6 +2,14 @@ extends Node2D
 
 const TILE_URL := "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
 const TILE_SIZE := 256
+const TILE_RADIUS := 4   # weil range(-4,5)
+
+var map_min: Vector2
+var map_max: Vector2
+
+@export var min_zoom: float = 0.8
+@export var max_zoom: float = 3.0
+
 var zoom: int = 14
 @onready var route_line: Line2D = $RouteLine
 
@@ -23,9 +31,17 @@ func _ready() -> void:
 	# Tile-Index des Zentrums
 	var center_tile: Vector2i = latlon_to_tile(center_lat, center_lon, zoom)
 
+	var min_tile_x := center_tile.x - TILE_RADIUS
+	var max_tile_x := center_tile.x + TILE_RADIUS + 1  # +1 weil rechte Kante exklusiv
+	var min_tile_y := center_tile.y - TILE_RADIUS
+	var max_tile_y := center_tile.y + TILE_RADIUS + 1
+
+	map_min = Vector2(min_tile_x * TILE_SIZE, min_tile_y * TILE_SIZE)
+	map_max = Vector2(max_tile_x * TILE_SIZE, max_tile_y * TILE_SIZE)
+
 	# Tiles laden (größerer Ausschnitt)
-	for dx in range(-4, 5):
-		for dy in range(-4, 5):
+	for dx in range(-7, 8):
+		for dy in range(-7, 8):
 			var x := center_tile.x + dx
 			var y := center_tile.y + dy
 			load_tile(x, y)		
@@ -36,6 +52,9 @@ func _ready() -> void:
 
 	load_geojson_lines("res://karte/KVVLinesGeoJSON_v2.json")
 	load_stops_from_kvv_json("res://karte/KVV_Haltestellen_v2.json")
+
+	_clamp_camera_to_map()
+
 
 # -------------------------------
 # TILE-Berechnungen & Laden
@@ -83,7 +102,8 @@ func load_tile(x: int, y: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	# Draggen
 	if event is InputEventMouseMotion and event.button_mask & MOUSE_BUTTON_MASK_LEFT:
-		$Camera2D.position -= event.relative / $Camera2D.zoom.x
+		$Camera2D.position -= event.relative / $Camera2D.zoom
+		_clamp_camera_to_map()
 
 	# Zoom
 	if event is InputEventMouseButton:
@@ -92,6 +112,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 			$Camera2D.zoom *= 1.1
 
+		# Zoom clamp
+		var z: float = clamp($Camera2D.zoom.x, min_zoom, max_zoom)
+		$Camera2D.zoom = Vector2(z, z)
+
+		_clamp_camera_to_map()
 
 
 # -------------------------------
@@ -571,6 +596,31 @@ func points_to_curve(points: PackedVector2Array) -> Curve2D:
 	for p in points:
 		curve.add_point(p)
 	return curve
+
+#Kameraeingrenzung
+
+func _clamp_camera_to_map() -> void:
+	var cam := $Camera2D
+
+	var view_size: Vector2 = get_viewport_rect().size
+	var half_w: float = (view_size.x * 0.5) / cam.zoom.x
+	var half_h: float = (view_size.y * 0.5) / cam.zoom.y
+
+	var min_x: float = map_min.x + half_w
+	var max_x: float = map_max.x - half_w
+	var min_y: float = map_min.y + half_h
+	var max_y: float = map_max.y - half_h
+
+	# Wenn View größer als Map (zu weit rausgezoomt), zentrieren
+	if min_x > max_x:
+		cam.position.x = (map_min.x + map_max.x) * 0.5
+	else:
+		cam.position.x = clamp(cam.position.x, min_x, max_x)
+
+	if min_y > max_y:
+		cam.position.y = (map_min.y + map_max.y) * 0.5
+	else:
+		cam.position.y = clamp(cam.position.y, min_y, max_y)
 
 
 #Hilfsfunktionen für Simulation---------------------
