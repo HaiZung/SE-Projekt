@@ -1,5 +1,4 @@
 extends Node
-
 # -----------------------------
 # Backend-Dateien
 # -----------------------------
@@ -71,7 +70,11 @@ var r4_defective := false
 var _run_id: int = 0
 var has_started_once := false
 var paused := false
-var initialized := false  
+var initialized := false
+
+var battery_levels := {}  # roboter_id -> batterie %
+var battery_drain_rate := 1.0  # % pro Sekunde
+var battery_charge_rate := 1.0  # % pro Sekunde
 
 func _ready() -> void:
 	# Warte bis alles geladen ist
@@ -185,7 +188,6 @@ func start_simulation() -> void:
 	set_process(true)
 
 	await _run(my_id)
-
 	# nur wenn das noch der aktuelle Run ist
 	if my_id == _run_id and not paused:
 		print("SIM END id=", my_id)
@@ -292,12 +294,6 @@ func _run(my_id: int) -> void:
 	print("R2 start:", r2_follow.global_position, " target:", stop_world_by_id.get(r2_target_id, Vector2.ZERO))
 	print("R3 start:", r3_follow.global_position, " target:", stop_world_by_id.get(r3_target_id, Vector2.ZERO))
 
-	# 5) States
-	await _set_state(1, "aktiv")
-	await _set_state(2, "aktiv")
-	await _set_state(3, "aktiv")
-	await _set_state(4, "charging")
-
 	# 6) Start fahren
 	r1_running = true
 	r2_running = true
@@ -308,23 +304,16 @@ func _run(my_id: int) -> void:
 	await get_tree().create_timer(break_after_seconds).timeout
 	r3_running = false
 	r3_defective = true  # Defekt-Status speichern
-	await _set_state(3, "defective")
 
 	# 8) Warten bis 1 + 2 am Ende (am Ziel)
 	await _wait_arrive_follow(r1_follow)
-	await _set_state(1, "unloading")
 	await get_tree().create_timer(unload_wait_seconds).timeout
-	await _set_state(1, "waiting_return")
 
 	await _wait_arrive_follow(r2_follow)
-	await _set_state(2, "unloading")
 	await get_tree().create_timer(unload_wait_seconds).timeout
-	await _set_state(2, "waiting_return")
 
 	await _wait_arrive_follow(r2_follow)
-	await _set_state(3, "unloading")
 	await get_tree().create_timer(unload_wait_seconds).timeout
-	await _set_state(3, "waiting_return")
 
 	# 9) Warten bis pakete leer sind
 	await get_tree().create_timer(afternoon_wait_seconds).timeout
@@ -346,10 +335,6 @@ func _run(my_id: int) -> void:
 	_setup_follow(r2_follow, 15.0)
 	_setup_follow(r3_follow, 30.0)
 
-	await _set_state(1, "returning")
-	await _set_state(2, "returning")
-	await _set_state(3, "maintenance_en_route")
-
 	r1_running = true
 	r2_running = true
 	r3_running = true
@@ -357,11 +342,6 @@ func _run(my_id: int) -> void:
 	await _wait_arrive_follow(r1_follow)
 	await _wait_arrive_follow(r2_follow)
 	await _wait_arrive_follow(r3_follow)
-
-	await _set_state(1, "done")
-	await _set_state(2, "done")
-	await _set_state(3, "maintenance")
-	await _set_state(4, "ready")
 
 # =========================================================
 # BACKEND LOAD + ROUTE BUILD
@@ -735,6 +715,17 @@ func reset_simulation() -> void:
 	await _set_state(4, "ready")
 
 	print("RESET done. Robots snapped to start.")
+	await _reset_database()
+# =========================================================
+# RESET DATENBANK
+# =========================================================
+func _reset_database() -> void:
+	if api == null:
+		print("API node not found")
+		return
+
+	await api.post_http("/reset_db", "{}")
+	print("Database reset request sent (check backend for actual result)")
 
 # =========================================================
 # KAMERA FOKUS

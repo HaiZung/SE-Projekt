@@ -35,9 +35,9 @@ async def init_db():
     packages_collection = db["Packages"]
     if await packages_collection.count_documents({}) == 0:
         await packages_collection.insert_many([
-            {"paketnummer": 101, "gewicht": 5.0, "masse": "10x10x10", "roboter_id": 1},
-            {"paketnummer": 102, "gewicht": 3.2, "masse": "8x8x8", "roboter_id": 2},
-            {"paketnummer": 103, "gewicht": 4.5, "masse": "12x12x12", "roboter_id": 1}
+            {"status": "unterwegs", "paketnummer": 101, "gewicht": 5.0, "masse": "10x10x10", "roboter_id": 1},
+            {"status": "unterwegs", "paketnummer": 102, "gewicht": 3.2, "masse": "8x8x8", "roboter_id": 2},
+            {"status": "unterwegs", "paketnummer": 103, "gewicht": 4.5, "masse": "12x12x12", "roboter_id": 1}
         ])
 
     # --- Stations Collection ---
@@ -62,7 +62,7 @@ async def init_db():
     if await robotstates_collection.count_documents({}) == 0:
         await robotstates_collection.insert_many([
             {"roboter_id": 1, "status": "aktiv", "batterie": 78},    # 78%
-            {"roboter_id": 2, "status": "inaktiv", "batterie": 45}, # 45%
+            {"roboter_id": 2, "status": "aktiv", "batterie": 45}, # 45%
             {"roboter_id": 3, "status": "wartung", "batterie": 90},  # 90%
             {"roboter_id": 4, "status": "charging", "batterie": 12} # 12%
         ])
