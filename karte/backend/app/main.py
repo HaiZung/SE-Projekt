@@ -1,8 +1,16 @@
 from fastapi import FastAPI, Body
+import asyncio
 from db import db, init_db
 from typing import Dict, Any
 
 app = FastAPI(title="Karte Backend")
+
+DEFAULT_BATTERIES = {
+    1: 78,
+    2: 45,
+    3: 90,
+    4: 12
+}
 
 @app.on_event("startup")
 async def startup_event():
@@ -70,10 +78,42 @@ async def add_trainid(data: dict = Body(...)):
     await db.TrainID.insert_one(data)
     return {"status": "success", "data": serialize(data)}
 
+# --- Batterie Loop ---
+async def battery_drain_loop():
+    robotstates_collection = db["Robotstates"]
+    while True:
+        async for robot in robotstates_collection.find({}):
+            rid = robot["roboter_id"]
+            status = robot.get("status", "")
+            batterie = robot.get("batterie", 0)
+
+            if status.lower() == "charging":
+                batterie = min(batterie + 1, 100)
+            else:
+                batterie = max(batterie - 1, 0)
+
+            await robotstates_collection.update_one(
+                {"roboter_id": rid},
+                {"$set": {"batterie": batterie}}
+            )
+
+        await asyncio.sleep(5)
+
+# --- Reset Batteries on Startup ---
+async def reset_batteries():
+    for rid, batt in DEFAULT_BATTERIES.items():
+        await db.Robotstates.update_one(
+            {"roboter_id": rid},
+            {"$set": {"batterie": batt}}
+        )
+
+
 # --- Startup Event ---
 @app.on_event("startup")
 async def startup_event():
     await init_db()  # Reset der Roboterstatus + Batterie
+    await reset_batteries()
+    asyncio.create_task(battery_drain_loop())  # startet Batterie-Update
 
 @app.put("/robotstates")
 async def update_robotstate(data: dict = Body(...)):
