@@ -23,7 +23,7 @@ func _ready():
 	#add_stations("Station_34")
 	#add_trainid(334, "12:22", "13:22", "k1", "k5")
 	#update_robot_status(1000, "lädt")
-	await  remove_package(888)
+	#await  remove_package(888)
 	pass
 
 func request_http(path: String) -> String:
