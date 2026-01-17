@@ -190,3 +190,23 @@ async def reset_database():
 
     return {"status": "success", "message": "Database reset to default"}
 
+
+
+
+@app.delete("/packages/{paketnummer}")
+async def delete_package(paketnummer: int):
+    # Attempt to delete the document where paketnummer matches the path parameter
+    result = await db.Packages.delete_one({"paketnummer": paketnummer})
+
+    if result.deleted_count == 0:
+        # If no document was deleted, return a 404 error
+        #raise HTTPException(status_code=404, detail=f"Package with paketnummer {paketnummer} not found")
+        return {
+        "status": "error",
+        }
+    
+    return {
+        "status": "success",
+        "message": f"Package {paketnummer} has been deleted",
+        "deleted_count": result.deleted_count
+    }

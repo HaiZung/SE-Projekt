@@ -23,6 +23,9 @@ extends Control
 @export var map_root_path: NodePath
 @onready var map_root: Node = get_node_or_null(map_root_path)
 
+var update_timer = 0
+var update_perdiod = 5.0
+
 
 
 var selected_robot_id := 0
@@ -66,6 +69,21 @@ func _on_robot_selected(id: int) -> void:
 		day_sim.focus_camera_on_robot(id + 1)
 
 
+
+func _process(delta):
+	update_timer += delta
+	if update_timer > update_perdiod:
+		_perdiodic_update_selected()
+		update_timer = 0
+	
+func _perdiodic_update_selected() -> void:
+	if panel_open: 
+		# Status
+		sec_status.set_lines(await api.get_status_for_robot(selected_robot_id +1))
+		# Route
+		sec_route.set_lines(await api.get_route_for_robot(selected_robot_id +1))
+		# Pakete
+		sec_packages.set_lines(await api.get_packages_for_robot(selected_robot_id +1))
 
 func _on_menu_button_pressed():
 	panel_open = !panel_open

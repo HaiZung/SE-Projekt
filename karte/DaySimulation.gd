@@ -18,16 +18,16 @@ extends Node
 # Route-Config pro Roboter (Backend-basiert)
 # -----------------------------
 @export var r1_line: String = "S1"
-@export var r1_start_id: String = "de:08212:90"      # Karlsruhe Hbf
-@export var r1_target_id: String = "de:08212:1207"   # Karlsruhe Schloss Rüppurr
+@export var r1_start_id: String = "de:08212:90" # Karlsruhe Hbf
+@export var r1_target_id: String = "de:08212:1207" # Karlsruhe Schloss Rüppurr
 
 @export var r2_line: String = "2"
-@export var r2_start_id: String = "de:08212:90"		 # Karlsruhe Hbf
-@export var r2_target_id: String = "de:08212:39"     # Mühlburger Tor
+@export var r2_start_id: String = "de:08212:90" # Karlsruhe Hbf
+@export var r2_target_id: String = "de:08212:39" # Mühlburger Tor
 
 @export var r3_line: String = "3"
-@export var r3_start_id: String = "de:08212:90"		 # Karlsruhe Hbf
-@export var r3_target_id: String = "de:08212:80"     # Kronenplatz
+@export var r3_start_id: String = "de:08212:90" # Karlsruhe Hbf
+@export var r3_target_id: String = "de:08212:80" # Kronenplatz
 
 # Robot4: lädt nur, keine Route
 @export var r4_enabled: bool = false
@@ -72,9 +72,9 @@ var has_started_once := false
 var paused := false
 var initialized := false
 
-var battery_levels := {}  # roboter_id -> batterie %
-var battery_drain_rate := 1.0  # % pro Sekunde
-var battery_charge_rate := 1.0  # % pro Sekunde
+var battery_levels := {} # roboter_id -> batterie %
+var battery_drain_rate := 1.0 # % pro Sekunde
+var battery_charge_rate := 1.0 # % pro Sekunde
 
 func _ready() -> void:
 	# Warte bis alles geladen ist
@@ -108,7 +108,7 @@ func _ready() -> void:
 		await get_tree().process_frame
 		
 		# PathFollow2D mit leicht unterschiedlichen Positionen
-		var offsets := [0.0, 12.0, 24.0, 36.0]  # Pixel-Offsets entlang der Curve
+		var offsets := [0.0, 12.0, 24.0, 36.0] # Pixel-Offsets entlang der Curve
 		var follows := [r1_follow, r2_follow, r3_follow, r4_follow]
 		
 		for i in range(4):
@@ -144,9 +144,9 @@ func _ready() -> void:
 # -----------------------------
 # Backend-Daten
 # -----------------------------
-var stop_world_by_id: Dictionary = {}         # "de:..." -> Vector2(world)
-var stop_name_by_id: Dictionary = {}          # "de:..." -> "Karlsruhe Hbf"
-var line_stations_by_number: Dictionary = {}  # "s7"/"2"/"3" -> Array[String stationId]
+var stop_world_by_id: Dictionary = {} # "de:..." -> Vector2(world)
+var stop_name_by_id: Dictionary = {} # "de:..." -> "Karlsruhe Hbf"
+var line_stations_by_number: Dictionary = {} # "s7"/"2"/"3" -> Array[String stationId]
 
 # Merken für Rückfahrt / Defekt
 var r1_pts := PackedVector2Array()
@@ -193,7 +193,6 @@ func start_simulation() -> void:
 		print("SIM END id=", my_id)
 		running = false
 		set_process(false)
-
 
 
 func _process(delta: float) -> void:
@@ -250,7 +249,7 @@ func _run(my_id: int) -> void:
 	print("HBF world:", stop_world_by_id.get("de:08212:90", Vector2.ZERO))
 	print("Robot1 start global:", r1_follow.global_position)
 	print("Curve first:", r1_path.curve.get_point_position(0))
-	print("Curve last:", r1_path.curve.get_point_position(r1_path.curve.get_point_count()-1))
+	print("Curve last:", r1_path.curve.get_point_position(r1_path.curve.get_point_count() - 1))
 
 	r2_path.curve = map_root.points_to_curve(r2_pts)
 	r3_path.curve = map_root.points_to_curve(r3_pts)
@@ -276,7 +275,7 @@ func _run(my_id: int) -> void:
 
 	_setup_follow(r2_follow, 15.0)
 	_setup_follow(r3_follow, 30.0)
-	_setup_follow(r4_follow, 0.0)  # Robot 4 am Anfang der Curve
+	_setup_follow(r4_follow, 0.0) # Robot 4 am Anfang der Curve
 
 	_set_robot_visible(1)
 	_set_robot_visible(2)
@@ -303,7 +302,7 @@ func _run(my_id: int) -> void:
 	# 7) Robot3 wird defekt
 	await get_tree().create_timer(break_after_seconds).timeout
 	r3_running = false
-	r3_defective = true  # Defekt-Status speichern
+	r3_defective = true # Defekt-Status speichern
 
 	# 8) Warten bis 1 + 2 am Ende (am Ziel)
 	await _wait_arrive_follow(r1_follow)
@@ -325,6 +324,11 @@ func _run(my_id: int) -> void:
 	r2_back.reverse()
 	var r3_back := r3_pts.duplicate()
 	r3_back.reverse()
+
+	#remove packages from db
+	var data = JSON.parse_string(await api.request_packages())
+	for package in data:
+		await api.remove_package(package["paketnummer"])
 
 
 	r1_path.curve = map_root.points_to_curve(r1_back)
@@ -399,7 +403,6 @@ func _load_backend() -> bool:
 
 		var world := _latlon_to_world(lat, lon)
 		stop_world_by_id[sid] = world
-
 
 
 	# -------------------------
@@ -530,7 +533,7 @@ func _latlon_to_world(lat: float, lon: float) -> Vector2:
 		var z := 14
 		# sicher "zoom" lesen, ohne has_variable()
 		if map_root != null:
-			var zv: Variant = map_root.get("zoom")   # gibt null zurück, wenn nicht vorhanden
+			var zv: Variant = map_root.get("zoom") # gibt null zurück, wenn nicht vorhanden
 			if zv != null:
 				z = int(zv)
 		return map_root.latlon_to_world(lat, lon, z)
@@ -595,10 +598,10 @@ func _set_robot_color(i: int) -> void:
 	var sprite := map_root.get_node_or_null("Robots/Robot%dRig/Path/Follow/Robot%d/Sprite2D" % [i, i]) as Sprite2D
 	if sprite:
 		var colors := [
-			Color(0.2, 0.6, 1.0),  # Robot 1: Blau
-			Color(1.0, 0.4, 0.2),  # Robot 2: Orange
-			Color(0.3, 1.0, 0.3),  # Robot 3: Grün
-			Color(1.0, 1.0, 0.2)   # Robot 4: Gelb (Techniker)
+			Color(0.2, 0.6, 1.0), # Robot 1: Blau
+			Color(1.0, 0.4, 0.2), # Robot 2: Orange
+			Color(0.3, 1.0, 0.3), # Robot 3: Grün
+			Color(1.0, 1.0, 0.2) # Robot 4: Gelb (Techniker)
 		]
 		sprite.modulate = colors[i - 1]
 
@@ -708,7 +711,7 @@ func reset_simulation() -> void:
 		cam.global_position = hbf_world
 
 	# 6) Zustand zurücksetzen
-	initialized = true  # wichtig: wir HABEN ja wieder Curves gesetzt
+	initialized = true # wichtig: wir HABEN ja wieder Curves gesetzt
 	await _set_state(1, "ready")
 	await _set_state(2, "ready")
 	await _set_state(3, "ready")

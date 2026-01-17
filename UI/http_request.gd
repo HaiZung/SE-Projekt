@@ -23,7 +23,7 @@ func _ready():
 	#add_stations("Station_34")
 	#add_trainid(334, "12:22", "13:22", "k1", "k5")
 	#update_robot_status(1000, "lädt")
-
+	await  remove_package(888)
 	pass
 
 func request_http(path: String) -> String:
@@ -99,7 +99,6 @@ func get_status_for_robot(robotID: int):
 	return ["Robot ID not found"]
 
 
-
 func get_packages_for_robot(robotID: int):
 	var data = JSON.parse_string(await request_packages())
 	if data == null:
@@ -110,10 +109,9 @@ func get_packages_for_robot(robotID: int):
 
 	for package in data:
 		if package["roboter_id"] == robotID:
-			
-			packages.append("Paketnummer: " + str(package["paketnummer"])  + " Gewicht: " + str(package["gewicht"]) + " Masse: " + package["masse"])
+			packages.append("Paketnummer: " + str(package["paketnummer"]) + " Gewicht: " + str(package["gewicht"]) + " Masse: " + package["masse"])
 	
-	if len(packages) == 0 :
+	if len(packages) == 0:
 		return ["No package for Robot ID"]
 	
 	return packages
@@ -145,33 +143,32 @@ func post_http(path: String, payload: String) -> void:
 		print("HTTP Error %d" % response_code)
 		return
 
-	print("request succsess"+ url + path)
+	print("request succsess" + url + path)
 
-func add_robotId(roboter_id: int)-> void:
-	var data= {"roboter_id": roboter_id}
-	var json= JSON.stringify(data)
+func add_robotId(roboter_id: int) -> void:
+	var data = {"roboter_id": roboter_id}
+	var json = JSON.stringify(data)
 	await post_http(path_robot_id, json)
 
-func add_package(paketnummer: int, gewicht: float, masse: String, roboter_id: int)-> void:
-	var data= {"paketnummer": paketnummer, "gewicht": gewicht, "masse": masse, "roboter_id": roboter_id}
-	var json= JSON.stringify(data)
+func add_package(paketnummer: int, gewicht: float, masse: String, roboter_id: int) -> void:
+	var data = {"paketnummer": paketnummer, "gewicht": gewicht, "masse": masse, "roboter_id": roboter_id}
+	var json = JSON.stringify(data)
 	await post_http(path_packages, json)
 
-func add_robotstates( roboter_id: int, status: String)-> void:
-	var data= {"Status": status, "roboter_id": roboter_id}
-	var json= JSON.stringify(data)
+func add_robotstates(roboter_id: int, status: String) -> void:
+	var data = {"Status": status, "roboter_id": roboter_id}
+	var json = JSON.stringify(data)
 	await post_http(path_robot_states, json)
 
-func add_stations(station: String)-> void:
-	var data= {"Station": station}
-	var json= JSON.stringify(data)
+func add_stations(station: String) -> void:
+	var data = {"Station": station}
+	var json = JSON.stringify(data)
 	await post_http(path_stations, json)
 
-func add_trainid(zugnummer: int, start: String, stop: String,von: String, bis: String )-> void:
-	var data= {"Zugnummer": zugnummer, "Start": start, "Stop": stop, "Von": von, "Bis": bis}
-	var json= JSON.stringify(data)
+func add_trainid(zugnummer: int, start: String, stop: String, von: String, bis: String) -> void:
+	var data = {"Zugnummer": zugnummer, "Start": start, "Stop": stop, "Von": von, "Bis": bis}
+	var json = JSON.stringify(data)
 	await post_http(path_train_id, json)
-
 
 
 func update_http(path: String, payload: String) -> void:
@@ -204,7 +201,43 @@ func update_http(path: String, payload: String) -> void:
 	print("PUT request success: " + url + path)
 
 
-func update_robot_status(roboter_id: int, status: String)-> void: 
-	var data= {"roboter_id": roboter_id, "status": status}
-	var json= JSON.stringify(data)
+func update_robot_status(roboter_id: int, status: String) -> void:
+	var data = {"roboter_id": roboter_id, "status": status}
+	var json = JSON.stringify(data)
 	await update_http(path_robot_states, json)
+
+# --- DELETE HELPER ---
+
+func delete_http(path: String) -> void:
+	print("Start DELETE request for: " + url + path)
+
+    # DELETE requests usually don't need a body, so we send an empty string
+	var err = request(
+        url + path,
+        [],
+        HTTPClient.METHOD_DELETE,
+        ""
+	)
+
+	if err != OK:
+		push_error("Request failed: %d" % err)
+		return
+
+	var result = await request_completed
+	var response_code = result[1]
+
+	if response_code < 200 or response_code >= 300:
+		push_error("HTTP Error %d on DELETE" % response_code)
+		print("Response Code: %d" % response_code)
+		return
+	
+	print("DELETE request success: " + url + path)
+
+
+# --- SPECIFIC DELETE CALLS ---
+
+## Deletes a package by its ID (paketnummer)
+func remove_package(paketnummer: int) -> void:
+    # This matches the FastAPI route: @app.delete("/packages/{paketnummer}")
+	var full_path = path_packages + "/" + str(paketnummer)
+	await delete_http(full_path)
