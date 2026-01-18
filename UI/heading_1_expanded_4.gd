@@ -4,7 +4,7 @@ extends VBoxContainer
 @onready var content: Control = $Content
 @onready var viewport: Viewport = $Content/SubViewportContainer/SubViewport
 
-var is_open := true
+var is_open := false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

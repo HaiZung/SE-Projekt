@@ -56,42 +56,42 @@ func standard_face():
 	var my_token = face_token
 
 	while my_token == face_token:
-		FaceMat.albedo_texture = load("res://robot-faces/Face_eyes_open.png")
+		FaceMat.albedo_texture = load("res://robot/robot-faces/Face_eyes_open.png")
 		await get_tree().create_timer(3.0).timeout
 		if my_token != face_token: break
 
-		FaceMat.albedo_texture = load("res://robot-faces/Face_eyes_closed.png")
+		FaceMat.albedo_texture = load("res://robot/robot-faces/Face_eyes_closed.png")
 		await get_tree().create_timer(0.2).timeout
 func busy_face():
 	face_token += 1
 	var my_token = face_token
 
 	while my_token == face_token:
-		FaceMat.albedo_texture = load("res://robot-faces/Thinking.png")
+		FaceMat.albedo_texture = load("res://robot/robot-faces/Thinking.png")
 		await get_tree().create_timer(1.0).timeout
 		if my_token != face_token: break
 
-		FaceMat.albedo_texture = load("res://robot-faces/working.png")
+		FaceMat.albedo_texture = load("res://robot/robot-faces/working.png")
 		await get_tree().create_timer(1.0).timeout
 func sleeping_face():
 	face_token += 1
 	var my_token = face_token
 
 	while my_token == face_token:
-		FaceMat.albedo_texture = load("res://robot-faces/sleepy_1.png")
+		FaceMat.albedo_texture = load("res://robot/robot-faces/sleepy_1.png")
 		await get_tree().create_timer(1.5).timeout
 		if my_token != face_token: break
 
-		FaceMat.albedo_texture = load("res://robot-faces/sleepy_2.png")
+		FaceMat.albedo_texture = load("res://robot/robot-faces/sleepy_2.png")
 		await get_tree().create_timer(1.5).timeout
 func happy_face():
-	FaceMat.albedo_texture = load("res://robot-faces/Happy.png")
+	FaceMat.albedo_texture = load("res://robot/robot-faces/Happy.png")
 func angry_face():
-	FaceMat.albedo_texture = load("res://robot-faces/Angry.png")
+	FaceMat.albedo_texture = load("res://robot/robot-faces/Angry.png")
 func sad_face():
-	FaceMat.albedo_texture = load("res://robot-faces/Sad.png")
+	FaceMat.albedo_texture = load("res://robot/robot-faces/Sad.png")
 func critical_face():
-	FaceMat.albedo_texture = load("res://robot-faces/critical.png")
+	FaceMat.albedo_texture = load("res://robot/robot-faces/critical.png")
 func reset_face():
 	face_token += 1
 

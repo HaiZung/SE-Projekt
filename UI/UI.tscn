@@ -143,9 +143,9 @@ alignment = 1
 [node name="RedBtn1" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R1
 "
@@ -153,27 +153,27 @@ text = "R1
 [node name="RedBtn2" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R2"
 
 [node name="RedBtn3" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R3"
 
 [node name="RedBtn4" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/WindowHeader/HeaderButtons"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_red")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
 theme_override_styles/hover = SubResource("StyleBoxFlat_red")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_green")
+theme_override_styles/normal = SubResource("StyleBoxFlat_red")
 toggle_mode = true
 text = "R4"
 
@@ -195,10 +195,10 @@ script = ExtResource("1_6dd3c")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.593134, 0.593134, 0.593134, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
-theme_override_colors/font_hover_color = Color(0.593134, 0.593134, 0.593134, 1)
 theme_override_font_sizes/font_size = 20
 text = "Status
 "
@@ -232,10 +232,10 @@ script = ExtResource("2_dhe1o")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded2"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
-theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "Geplante Route"
 flat = true
@@ -268,10 +268,10 @@ script = ExtResource("3_q0uhn")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded3"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
-theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "Paketliste"
 flat = true
@@ -304,10 +304,10 @@ script = ExtResource("5_f1fl4")
 
 [node name="ToggleBtn" type="Button" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4"]
 layout_mode = 2
+theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_colors/font_pressed_color = Color(0.592157, 0.592157, 0.592157, 1)
-theme_override_colors/font_hover_color = Color(0.592157, 0.592157, 0.592157, 1)
 theme_override_font_sizes/font_size = 20
 text = "3D Ansicht"
 flat = true
@@ -320,15 +320,24 @@ layout_mode = 2
 layout_mode = 2
 
 [node name="SubViewport" type="SubViewport" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer"]
+transparent_bg = true
 handle_input_locally = false
+size = Vector2i(300, 300)
 render_target_update_mode = 4
 
 [node name="Node3D" type="Node3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport"]
 script = ExtResource("6_jqf55")
 
 [node name="Camera3D" type="Camera3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+transform = Transform3D(0.766044, -0.219846, 0.604023, 0, 0.939693, 0.34202, -0.642788, -0.262003, 0.719846, 1.91784, 1.88359, 2.42293)
+keep_aspect = 0
+current = true
+fov = 68.2
+near = 0.092
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
+transform = Transform3D(0.274261, -0.870703, 0.408238, 1.79899e-08, 0.424515, 0.905421, -0.961655, -0.248322, 0.116428, 0, 0, 0)
+light_energy = 0.2
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="UILayer/MainLayout/WindowPanel/WindowVBox/ScrollArea/ContentList/Heading1_Expanded4/Content/SubViewportContainer/SubViewport/Node3D"]
 visible = false
