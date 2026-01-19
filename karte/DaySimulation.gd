@@ -55,6 +55,18 @@ extends Node
 
 @onready var api := get_node_or_null("/root/MainUI/HTTPRequest")
 
+# -----------------------------
+# Hover System
+# -----------------------------
+@export var hover_radius_px := 12.0
+
+var _hover_root: Node2D
+var _hover_label: Label
+var _hover_stations: Dictionary = {}
+
+# -----------------------------
+# Simulation State
+# -----------------------------
 var running := false
 var r1_running := false
 var r2_running := false
@@ -85,6 +97,10 @@ func _ready() -> void:
 	if not _load_backend():
 		return
 	
+	_init_hover_system()
+	_style_tooltip_label()
+	_build_hover_stations()
+
 	var hbf_world := stop_world_by_id.get("de:08212:90", Vector2.ZERO) as Vector2
 	
 	# Kamera auf HBF
@@ -196,6 +212,7 @@ func start_simulation() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_tooltip_pos()
 	if not running:
 		return
 
@@ -752,3 +769,115 @@ func focus_camera_on_robot(robot_id: int) -> void:
 	if follow:
 		cam.global_position = follow.global_position
 		cam.zoom = Vector2(0.7, 0.7)
+
+func _init_hover_system() -> void:
+	# UI label holen
+	_hover_label = map_root.get_node_or_null("HoverUI/HoverLabel") as Label
+	if _hover_label:
+		_hover_label.visible = false
+		_hover_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# Welt-root für Hover-Areas
+	_hover_root = map_root.get_node_or_null("HoverStations") as Node2D
+	if _hover_root == null:
+		_hover_root = Node2D.new()
+		_hover_root.name = "HoverStations"
+		map_root.add_child(_hover_root)
+
+func _build_hover_stations() -> void:
+	_clear_hover_stations()
+
+	# HBF + alle Start/Ziel Stationen
+	_add_hover_station("de:08212:90") # HBF
+
+	_add_hover_station(r1_start_id)
+	_add_hover_station(r1_target_id)
+	_add_hover_station(r2_start_id)
+	_add_hover_station(r2_target_id)
+	_add_hover_station(r3_start_id)
+	_add_hover_station(r3_target_id)
+
+func _clear_hover_stations() -> void:
+	if _hover_root:
+		for c in _hover_root.get_children():
+			c.queue_free()
+	_hover_stations.clear()
+
+func _add_hover_station(sid: String) -> void:
+	if _hover_root == null:
+		return
+
+	sid = _normalize_station_id(sid)
+	if not stop_world_by_id.has(sid):
+		push_warning("Hover station not found in stops: " + sid)
+		return
+
+	if _hover_stations.has(sid):
+		return
+
+	var pos: Vector2 = stop_world_by_id[sid]
+	var name := str(stop_name_by_id.get(sid, sid))
+
+	var a := Area2D.new()
+	a.position = pos
+
+	var col := CollisionShape2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = hover_radius_px
+	col.shape = shape
+	a.add_child(col)
+
+	a.mouse_entered.connect(func():
+		_show_tooltip(name)
+	)
+	a.mouse_exited.connect(func():
+		_hide_tooltip()
+	)
+
+	_hover_root.add_child(a)
+	_hover_stations[sid] = a
+
+func _show_tooltip(text: String) -> void:
+	if _hover_label == null:
+		return
+	_hover_label.text = text
+	_hover_label.visible = true
+	_update_tooltip_pos()
+
+func _hide_tooltip() -> void:
+	if _hover_label:
+		_hover_label.visible = false
+
+func _update_tooltip_pos() -> void:
+	if _hover_label and _hover_label.visible:
+		_hover_label.global_position = get_viewport().get_mouse_position() + Vector2(12, 12)
+
+func _style_tooltip_label() -> void:
+	if _hover_label == null:
+		return
+
+	_hover_label.visible = false
+	_hover_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	# schöne Tooltip-Box
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.08, 0.08, 0.10, 0.92)
+	sb.border_color = Color(1, 1, 1, 0.14)
+	sb.border_width_left = 1
+	sb.border_width_top = 1
+	sb.border_width_right = 1
+	sb.border_width_bottom = 1
+
+	sb.corner_radius_top_left = 12
+	sb.corner_radius_top_right = 12
+	sb.corner_radius_bottom_left = 12
+	sb.corner_radius_bottom_right = 12
+
+	sb.content_margin_left = 12
+	sb.content_margin_right = 12
+	sb.content_margin_top = 8
+	sb.content_margin_bottom = 8
+
+	_hover_label.add_theme_stylebox_override("normal", sb)
+	_hover_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
+	_hover_label.add_theme_font_size_override("font_size", 14)

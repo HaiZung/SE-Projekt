@@ -72,3 +72,10 @@ scale = Vector2(0.09, 0.09)
 texture = ExtResource("3_7t8su")
 
 [node name="DaySimulation" parent="." instance=ExtResource("4_tegra")]
+
+[node name="HoverUI" type="CanvasLayer" parent="."]
+
+[node name="HoverLabel" type="Label" parent="HoverUI"]
+visible = false
+offset_right = 1.0
+offset_bottom = 23.0
