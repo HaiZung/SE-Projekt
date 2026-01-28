@@ -50,6 +50,131 @@ var door_closed_rotations := {}
 var door_nodes := {}
 var current_open_door: String = ""  
 
+# ───────────── STATUS ─────────────
+enum RobotStatus {
+	OFF,
+	IDLE,
+	DRIVING,
+	RETURNING,
+	INTERACTING,
+	CHARGING,
+	ERROR,
+	HELP,
+	DANGER,
+	ALARM,
+	PAUSED
+}
+
+var current_status: RobotStatus = RobotStatus.OFF
+
+func _clear_state_flags() -> void:
+	# Movement
+	driving = false
+	driving_backwards = false
+	turning_left = false
+	turning_right = false
+	obstacle = false
+
+	# Special
+	interacting = false
+	charging = false
+	error = false
+	danger = false
+	help = false
+	alarm = false
+	doors = false
+
+	anim_tree.active = false
+	clear_all_effects()
+
+func set_status(new_status: RobotStatus) -> void:
+	if current_status == new_status:
+		return
+
+	current_status = new_status
+	_clear_state_flags()
+
+	# powered_on ist quasi "Master Switch"
+	powered_on = (new_status != RobotStatus.OFF)
+
+	# Face loops sauber abbrechen
+	reset_face()
+
+	match new_status:
+		RobotStatus.OFF:
+			# offline() passiert automatisch im _process
+			pass
+
+		RobotStatus.IDLE:
+			standard_face()
+
+		RobotStatus.DRIVING:
+			driving = true
+			anim_tree.active = true
+			standard_face()
+
+		RobotStatus.RETURNING:
+			driving = true
+			driving_backwards = true
+			anim_tree.active = true
+			busy_face()
+
+		RobotStatus.INTERACTING:
+			interacting = true
+			busy_face()
+
+		RobotStatus.CHARGING:
+			charging = true
+			sleeping_face()
+
+		RobotStatus.ERROR:
+			error = true
+			critical_face()
+
+		RobotStatus.HELP:
+			help = true
+			sad_face()
+
+		RobotStatus.DANGER:
+			danger = true
+			angry_face()
+
+		RobotStatus.ALARM:
+			alarm = true
+			critical_face()
+
+		RobotStatus.PAUSED:
+			standard_face()
+
+func set_status_string(status: String) -> void:
+	var s := status.to_lower().strip_edges()
+	match s:
+		"off", "offline":
+			set_status(RobotStatus.OFF)
+		"ready", "idle":
+			set_status(RobotStatus.IDLE)
+		"driving", "moving", "running":
+			set_status(RobotStatus.DRIVING)
+		"returning", "back", "driving_back":
+			set_status(RobotStatus.RETURNING)
+		"interacting", "unloading":
+			set_status(RobotStatus.INTERACTING)
+		"charging":
+			set_status(RobotStatus.CHARGING)
+		"error", "defective", "broken":
+			set_status(RobotStatus.ERROR)
+		"help":
+			set_status(RobotStatus.HELP)
+		"danger":
+			set_status(RobotStatus.DANGER)
+		"alarm":
+			set_status(RobotStatus.ALARM)
+		"paused", "pause":
+			set_status(RobotStatus.PAUSED)
+		_:
+			# fallback
+			set_status(RobotStatus.IDLE)
+
 # ───────────── FACES ─────────────
 func standard_face():
 	face_token += 1

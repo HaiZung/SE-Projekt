@@ -1,4 +1,5 @@
 extends Node
+signal robot_status_changed(robot_id: int, status: int)
 # -----------------------------
 # Backend-Dateien
 # -----------------------------
@@ -55,18 +56,6 @@ extends Node
 
 @onready var api := get_node_or_null("/root/MainUI/HTTPRequest")
 
-# -----------------------------
-# Hover System
-# -----------------------------
-@export var hover_radius_px := 12.0
-
-var _hover_root: Node2D
-var _hover_label: Label
-var _hover_stations: Dictionary = {}
-
-# -----------------------------
-# Simulation State
-# -----------------------------
 var running := false
 var r1_running := false
 var r2_running := false
@@ -97,10 +86,6 @@ func _ready() -> void:
 	if not _load_backend():
 		return
 	
-	_init_hover_system()
-	_style_tooltip_label()
-	_build_hover_stations()
-
 	var hbf_world := stop_world_by_id.get("de:08212:90", Vector2.ZERO) as Vector2
 	
 	# Kamera auf HBF
@@ -212,7 +197,6 @@ func start_simulation() -> void:
 
 
 func _process(delta: float) -> void:
-	_update_tooltip_pos()
 	if not running:
 		return
 
@@ -316,20 +300,27 @@ func _run(my_id: int) -> void:
 	r3_running = true
 	r4_running = true
 
+	await _set_state(1, "driving")
+	await _set_state(2, "driving")
+	await _set_state(3, "driving")
+	await _set_state(4, "charging")
+
 	# 7) Robot3 wird defekt
 	await get_tree().create_timer(break_after_seconds).timeout
 	r3_running = false
 	r3_defective = true # Defekt-Status speichern
+	await _set_state(3, "error")
 
 	# 8) Warten bis 1 + 2 am Ende (am Ziel)
 	await _wait_arrive_follow(r1_follow)
+	await _set_state(1, "interacting")
 	await get_tree().create_timer(unload_wait_seconds).timeout
+	await _set_state(1, "idle")
 
 	await _wait_arrive_follow(r2_follow)
+	await _set_state(2, "interacting")
 	await get_tree().create_timer(unload_wait_seconds).timeout
-
-	await _wait_arrive_follow(r2_follow)
-	await get_tree().create_timer(unload_wait_seconds).timeout
+	await _set_state(2, "idle")
 
 	# 9) Warten bis pakete leer sind
 	await get_tree().create_timer(afternoon_wait_seconds).timeout
@@ -360,9 +351,17 @@ func _run(my_id: int) -> void:
 	r2_running = true
 	r3_running = true
 
+	await _set_state(1, "returning")
+	await _set_state(2, "returning")
+	await _set_state(3, "error")
+
 	await _wait_arrive_follow(r1_follow)
 	await _wait_arrive_follow(r2_follow)
 	await _wait_arrive_follow(r3_follow)
+
+	await _set_state(1, "charging")
+	await _set_state(2, "charging")
+	await _set_state(4, "charging")
 
 # =========================================================
 # BACKEND LOAD + ROUTE BUILD
@@ -596,11 +595,30 @@ func _wait_arrive_follow(f: PathFollow2D) -> void:
 		await get_tree().process_frame
 
 func _set_state(id: int, status: String) -> void:
+	_apply_visual_state(id, status)
+
 	if api != null and api.has_method("update_robot_status"):
 		await api.update_robot_status(id, status)
 	else:
 		print("STATE:", id, status)
 
+func _apply_visual_state(id: int, status: String) -> void:
+	var robot := map_root.get_node_or_null("Robots/Robot%dRig/Path/Follow/Robot%d" % [id, id])
+	if robot == null:
+		return
+
+	var target := _find_status_target(robot)
+	if target != null:
+		target.call("set_status_string", status)
+
+func _find_status_target(n: Node) -> Node:
+	if n.has_method("set_status_string"):
+		return n
+	for c in n.get_children():
+		var found := _find_status_target(c)
+		if found != null:
+			return found
+	return null
 func _set_robot_visible(i: int) -> void:
 	var robot := map_root.get_node_or_null("Robots/Robot%dRig/Path/Follow/Robot%d" % [i, i]) as Node2D
 	if robot:
@@ -769,115 +787,3 @@ func focus_camera_on_robot(robot_id: int) -> void:
 	if follow:
 		cam.global_position = follow.global_position
 		cam.zoom = Vector2(0.7, 0.7)
-
-func _init_hover_system() -> void:
-	# UI label holen
-	_hover_label = map_root.get_node_or_null("HoverUI/HoverLabel") as Label
-	if _hover_label:
-		_hover_label.visible = false
-		_hover_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	# Welt-root für Hover-Areas
-	_hover_root = map_root.get_node_or_null("HoverStations") as Node2D
-	if _hover_root == null:
-		_hover_root = Node2D.new()
-		_hover_root.name = "HoverStations"
-		map_root.add_child(_hover_root)
-
-func _build_hover_stations() -> void:
-	_clear_hover_stations()
-
-	# HBF + alle Start/Ziel Stationen
-	_add_hover_station("de:08212:90") # HBF
-
-	_add_hover_station(r1_start_id)
-	_add_hover_station(r1_target_id)
-	_add_hover_station(r2_start_id)
-	_add_hover_station(r2_target_id)
-	_add_hover_station(r3_start_id)
-	_add_hover_station(r3_target_id)
-
-func _clear_hover_stations() -> void:
-	if _hover_root:
-		for c in _hover_root.get_children():
-			c.queue_free()
-	_hover_stations.clear()
-
-func _add_hover_station(sid: String) -> void:
-	if _hover_root == null:
-		return
-
-	sid = _normalize_station_id(sid)
-	if not stop_world_by_id.has(sid):
-		push_warning("Hover station not found in stops: " + sid)
-		return
-
-	if _hover_stations.has(sid):
-		return
-
-	var pos: Vector2 = stop_world_by_id[sid]
-	var name := str(stop_name_by_id.get(sid, sid))
-
-	var a := Area2D.new()
-	a.position = pos
-
-	var col := CollisionShape2D.new()
-	var shape := CircleShape2D.new()
-	shape.radius = hover_radius_px
-	col.shape = shape
-	a.add_child(col)
-
-	a.mouse_entered.connect(func():
-		_show_tooltip(name)
-	)
-	a.mouse_exited.connect(func():
-		_hide_tooltip()
-	)
-
-	_hover_root.add_child(a)
-	_hover_stations[sid] = a
-
-func _show_tooltip(text: String) -> void:
-	if _hover_label == null:
-		return
-	_hover_label.text = text
-	_hover_label.visible = true
-	_update_tooltip_pos()
-
-func _hide_tooltip() -> void:
-	if _hover_label:
-		_hover_label.visible = false
-
-func _update_tooltip_pos() -> void:
-	if _hover_label and _hover_label.visible:
-		_hover_label.global_position = get_viewport().get_mouse_position() + Vector2(12, 12)
-
-func _style_tooltip_label() -> void:
-	if _hover_label == null:
-		return
-
-	_hover_label.visible = false
-	_hover_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	# schöne Tooltip-Box
-	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.08, 0.08, 0.10, 0.92)
-	sb.border_color = Color(1, 1, 1, 0.14)
-	sb.border_width_left = 1
-	sb.border_width_top = 1
-	sb.border_width_right = 1
-	sb.border_width_bottom = 1
-
-	sb.corner_radius_top_left = 12
-	sb.corner_radius_top_right = 12
-	sb.corner_radius_bottom_left = 12
-	sb.corner_radius_bottom_right = 12
-
-	sb.content_margin_left = 12
-	sb.content_margin_right = 12
-	sb.content_margin_top = 8
-	sb.content_margin_bottom = 8
-
-	_hover_label.add_theme_stylebox_override("normal", sb)
-	_hover_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.95))
-	_hover_label.add_theme_font_size_override("font_size", 14)
